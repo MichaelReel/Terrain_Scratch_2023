@@ -15,9 +15,9 @@ func _init(points: Array, index_col: int, index_row: int) -> void:
 	_index_col = index_col
 	_index_row = index_row
 	_edges = [
-		points[0].connection_to_point(points[1]),
-		points[1].connection_to_point(points[2]),
-		points[2].connection_to_point(points[0]),
+		points[0].get_connection_to_point(points[1]),
+		points[1].get_connection_to_point(points[2]),
+		points[2].get_connection_to_point(points[0]),
 	]
 	for point in _points:
 		point.add_polygon(self)
@@ -33,3 +33,6 @@ func update_neighbours_from_edges() -> void:
 		for tri in point.get_triangles():
 			if not tri in _neighbours and not tri in _corner_neighbours and not tri == self:
 				_corner_neighbours.append(tri)
+
+func _to_string() -> String:
+	return "%d,%d: %s" % [_index_row, _index_col, _points]

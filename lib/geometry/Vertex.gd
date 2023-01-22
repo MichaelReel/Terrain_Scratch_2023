@@ -12,11 +12,11 @@ func _init(x: float, z: float) -> void:
 	_connections = []
 	_polygons = []
 
-func add_connection(edge: Edge) -> void:
+func add_connection(edge) -> void:  # (edge: Edge)
 	if not edge in _connections:
 		_connections.append(edge)
 
-func add_polygon(triangle: Triangle) -> void:
+func add_polygon(triangle) -> void:  # (triangle: Triangle)
 	if not triangle in _polygons:
 		_polygons.append(triangle)
 
@@ -31,6 +31,9 @@ func has_connection_to_point(point: Vertex) -> bool:
 
 func get_triangles() -> Array:
 	return _polygons
+
+func _to_string() -> String:
+	return str(_pos)
 
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	"""This will sort by Y desc, then X asc"""

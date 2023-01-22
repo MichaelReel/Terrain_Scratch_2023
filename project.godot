@@ -45,6 +45,7 @@ _global_script_class_icons={
 [application]
 
 config/name="Terrain_Scratch_2023"
+run/main_scene="res://Main.tscn"
 config/icon="res://icon.png"
 
 [debug]

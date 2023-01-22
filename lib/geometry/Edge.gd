@@ -25,6 +25,11 @@ func get_bordering_triangles() -> Array:
 func has_point(point: Vertex) -> bool:
 	return _a == point or _b == point
 
+func other_point(this: Vertex) -> Vertex:
+	if this == _a:
+		return _b
+	return _a
+
 func shared_point(other: Edge):  # -> Vertex | null:
 	if _a == other._a or _a == other._b:
 		return _a
@@ -38,6 +43,6 @@ func shares_a_point_with(other: Edge) -> bool:
 		other.has_point(_b)
 	)
 
-func set_border_of(triangle: Triangle) -> void:
+func set_border_of(triangle) -> void:  # (triangle: Triangle)
 	if not triangle in _borders:
 		_borders.append(triangle)
