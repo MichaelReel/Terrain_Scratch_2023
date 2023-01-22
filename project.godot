@@ -8,10 +8,48 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Model",
+"class": "Edge",
+"language": "GDScript",
+"path": "res://lib/geometry/Edge.gd"
+}, {
+"base": "Model",
+"class": "Grid",
+"language": "GDScript",
+"path": "res://lib/geometry/Grid.gd"
+}, {
+"base": "Object",
+"class": "Model",
+"language": "GDScript",
+"path": "res://lib/geometry/Model.gd"
+}, {
+"base": "Model",
+"class": "Triangle",
+"language": "GDScript",
+"path": "res://lib/geometry/Triangle.gd"
+}, {
+"base": "Model",
+"class": "Vertex",
+"language": "GDScript",
+"path": "res://lib/geometry/Vertex.gd"
+} ]
+_global_script_class_icons={
+"Edge": "",
+"Grid": "",
+"Model": "",
+"Triangle": "",
+"Vertex": ""
+}
+
 [application]
 
 config/name="Terrain_Scratch_2023"
 config/icon="res://icon.png"
+
+[debug]
+
+gdscript/warnings/integer_division=false
 
 [gui]
 
