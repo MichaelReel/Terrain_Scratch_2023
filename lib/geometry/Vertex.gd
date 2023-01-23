@@ -42,3 +42,6 @@ static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	elif a._pos.y == b._pos.y and a._pos.x < b._pos.x:
 			return true
 	return false
+
+func get_vector() -> Vector3:
+	return _pos

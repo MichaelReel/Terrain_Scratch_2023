@@ -74,21 +74,21 @@ func _create_triangle(row: int, col: int) -> Triangle:
 	if row_even:
 		if column_even:
 			points.append(_grid_points[row  ][col/2])
-			points.append(_grid_points[row+1][col/2])
 			points.append(_grid_points[row  ][(col/2)+1])
+			points.append(_grid_points[row+1][col/2])
 		else:  # (col_odd)
 			points.append(_grid_points[row  ][(col/2)+1])
-			points.append(_grid_points[row+1][col/2])
 			points.append(_grid_points[row+1][(col/2)+1])
+			points.append(_grid_points[row+1][col/2])
 	else:  # (row_odd)
 		if column_even:
 			points.append(_grid_points[row  ][col/2])
-			points.append(_grid_points[row+1][col/2])
 			points.append(_grid_points[row+1][(col/2)+1])
+			points.append(_grid_points[row+1][col/2])
 		else:  # (col_odd)
 			points.append(_grid_points[row  ][col/2])
-			points.append(_grid_points[row+1][(col/2)+1])
 			points.append(_grid_points[row  ][(col/2)+1])
+			points.append(_grid_points[row+1][(col/2)+1])
 	return Triangle.new(points, row, col)
 
 func get_cell_count() -> int:
@@ -113,7 +113,9 @@ func _update_debug_content() -> void:
 			_debug_content += str(_grid_tris[row][col]) + "\n"
 		_debug_content += "\n"
 	
-	
+func get_triangles() -> Array:
+	"""Returns array of arrays of triangles in a grid layout"""
+	return _grid_tris
 	
 	
 	

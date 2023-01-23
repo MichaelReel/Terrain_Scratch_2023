@@ -132,39 +132,39 @@ For each column of points there will be 2 columns of triangles, except the last 
 - `triangles_per_row = (points_per_row - 1) * 2`
 
 
-For each triangle with the coordinates `(tx,tz)`, the first (`px0, pz0`) second (`px1, pz1`) and third (`px2, pz2`) points will be the anti-clockwise rotational positions, and this will depend on the parity of the row and column.
+For each triangle with the coordinates `(tx,tz)`, the first (`px0, pz0`) second (`px1, pz1`) and third (`px2, pz2`) points will be the clockwise rotational positions, and this will depend on the parity of the row and column.
+
+> Godot [SurfaceTool](https://docs.godotengine.org/en/stable/classes/class_surfacetool.html#surfacetool) uses clockwise winding order.  
 
 Assume all division is integer division such that the result of `a/b` is the same as `floor(a/b)`.
 
 |     | column (`tx`) | row (`tz`) |(`px0`,    | `pz0`)|(`px1`,    |  `pz1`)|(`px2`,    |  `pz2`)|
 | --- | ------------- | ---------- |-----------|-------|-----------|--------|-----------|--------|
-| a)  | even          | even       |(`tx/2`,   | `tz` )|(`tx/2`,   | `tz+1`)|(`tx/2+1`, | `tz`  )|
-| b)  | odd           | even       |(`tx/2+1`, | `tz` )|(`tx/2`,   | `tz+1`)|(`tx/2+1`, | `tz+1`)|
-| c)  | even          | odd        |(`tx/2`,   | `tz` )|(`tx/2`,   | `tz+1`)|(`tx/2+1`, | `tz+1`)|
-| d)  | odd           | odd        |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz+1`)|(`tx/2+1`, | `tz`  )|
+| a)  | even          | even       |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz`  )|(`tx/2`,   | `tz+1`)|
+| b)  | odd           | even       |(`tx/2+1`, | `tz` )|(`tx/2+1`, | `tz+1`)|(`tx/2`,   | `tz+1`)|
+| c)  | even          | odd        |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz+1`)|(`tx/2`,   | `tz+1`)|
+| d)  | odd           | odd        |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz`  )|(`tx/2+1`, | `tz+1`)|
 
 
 ```
 a)                  b)                 c)                d)                 
-  p0____________p2          p0                 p0          p0____________p2 
+  p0____________p1          p0                 p0          p0____________p1 
     \          /            /\                 /\            \          /   
      \(tx, ty)/            /  \               /  \            \(tx, ty)/    
       \      /            /    \             /    \            \      /     
        \    /            /      \           /      \            \    /      
         \  /            /(tx, ty)\         /(tx, ty)\            \  /       
          \/            /__________\       /__________\            \/        
-         p1          p1            p2   p1            p2          p1        
+         p2          p2            p1   p2            p1          p2        
 ```
-
-Of course, where the column is even, the `floor` and `ceil` calls on the `tx` value are essentially irrelevant, but it can be helpful to include them.
 
 #### Sanity checking the above with examples
 
-The Triangle at position t(4,2) should have the points: `[p(2,2), p(2,3), p(3,2)]`
+The Triangle at position t(4,2) should have the points: `[p(2,2), p(3,2), p(2,3)]`
 
 - `p0 = (4/2, 2)`
-- `p1 = (4/2, 2+1)`
-- `p2 = (4/2+1, 2)`
+- `p1 = (4/2+1, 2)`
+- `p2 = (4/2, 2+1)`
 
 ```
 p(2,2)\/________\p(3,2)
@@ -176,11 +176,11 @@ p(2,2)\/________\p(3,2)
            /p(2,3)
 ```
 
-The Triangle at position t(3,2) should have the points: `[p(2,2), p(1,3), p(2,3)]`
+The Triangle at position t(3,2) should have the points: `[p(2,2), p(2,3), p(1,3)]`
 
 - `p0 = (3/2+1, 2)`
-- `p1 = (3/2, 2+1)`
-- `p2 = (3/2+1, 2+1)`
+- `p1 = (3/2+1, 2+1)`
+- `p2 = (3/2, 2+1)`
 
 ```
      p(2,2)\/_
@@ -192,11 +192,11 @@ The Triangle at position t(3,2) should have the points: `[p(2,2), p(1,3), p(2,3)
  p(1,3)\        /p(2,3)
 ```
 
-The Triangle at position t(4,3) should have the points: `[p(2,3), p(2,4), p(3,4)]`
+The Triangle at position t(4,3) should have the points: `[p(2,3), p(3,4), p(2,4)]`
 
 - `p0 = (4/2, 3)`
-- `p1 = (4/2, 3+1)`
-- `p2 = (4/2+1, 3+1)`
+- `p1 = (4/2+1, 3+1)`
+- `p2 = (4/2, 3+1)`
 
 ```
      p(2,3)\/_
@@ -208,11 +208,11 @@ The Triangle at position t(4,3) should have the points: `[p(2,3), p(2,4), p(3,4)
  p(2,4)\        /p(3,4)
 ```
 
-The Triangle at position (5,3) should have the points: `[p(2,3), p(3,4), p(3,3)]`
+The Triangle at position (5,3) should have the points: `[p(2,3), p(3,3), p(3,4)]`
 
 - `p0 = (5/2, 3)`
-- `p1 = (5/2+1, 3+1)`
-- `p2 = (5/2+1, 3)`
+- `p1 = (5/2+1, 3)`
+- `p2 = (5/2+1, 3+1)`
 
 ```
 p(2,3)\/________\p(3,3)

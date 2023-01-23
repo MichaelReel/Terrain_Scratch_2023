@@ -36,3 +36,11 @@ func update_neighbours_from_edges() -> void:
 
 func _to_string() -> String:
 	return "%d,%d: %s" % [_index_row, _index_col, _points]
+
+func get_color():  # -> Color | null:
+	if _parent:
+		return _parent.get_color()
+	return null
+
+func get_vertices() -> Array:
+	return _points
