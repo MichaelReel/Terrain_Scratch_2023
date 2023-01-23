@@ -1,8 +1,10 @@
 extends MeshInstance
 
-func _ready() -> void:
+export (float) var edge_length: float = 10.0
+export (int) var edges_across: int = 100
 
-	var grid = Grid.new(10.0, 100, Color8(255,255,255,255))
+func _ready() -> void:
+	var grid = Grid.new(edge_length, edges_across, Color8(24,64,24,255))
 	var island_mesh: Mesh = get_mesh_from_grid(grid)
 	set_mesh(island_mesh)
 	

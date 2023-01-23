@@ -16,8 +16,9 @@ func _init(edge_size: float, row_points: int, color: Color) -> void:
 	_color = color
 	_tri_height = sqrt(0.75) * _tri_side
 	# Find the number of rows to keep the mesh roughly square
-	var row_width: float = (row_points - 0.5) * _tri_side
-	var row_count: int = int(floor(row_width / _tri_height)) + 1
+	var row_width: float = (row_points + 0.5) * _tri_side
+	var row_count: int = int(row_width / _tri_height)
+	var mesh_center: float = edge_size * row_points / 2.0
 	
 	# Lay out points
 	for row_ind in range(row_count):
@@ -26,7 +27,7 @@ func _init(edge_size: float, row_points: int, color: Color) -> void:
 		var y: float = _tri_height * row_ind
 		for col_ind in range(row_points):
 			var x: float = offset + (_tri_side * col_ind)
-			var new_point = Vertex.new(x, y)
+			var new_point = Vertex.new(x - mesh_center, y - mesh_center)
 			point_row.append(new_point)
 		_grid_points.append(point_row)
 	
