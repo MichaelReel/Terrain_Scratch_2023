@@ -5,9 +5,9 @@ extends Model
 var _color: Color
 var _tri_side: float
 var _tri_height: float
-var _grid_points: Array = []  # Array of rows of points
-var _grid_lines: Array = []
-var _grid_tris: Array = []  # Array of rows of triangles
+var _grid_points: Array = []  # Array[Array[Vertex]]
+var _grid_lines: Array = []  # Array[Edge]
+var _grid_tris: Array = []  # Array[Array[Triangle]]
 var _cell_count: int = 0
 var _debug_content: String = ""
 
@@ -58,9 +58,29 @@ func _init(edge_size: float, row_points: int, color: Color) -> void:
 		
 	_update_debug_content()
 
-func get_point_rows() -> Array:
+func get_point_rows() -> Array:  # Array[Array[Vertex]]
 	"""Returns the array of rows of points"""
 	return _grid_points
+
+func get_cell_count() -> int:
+	return _cell_count
+
+func get_island_points() -> Array:  # Array[Vertex]
+	var point_list: Array = []
+	for row in _grid_points:
+		for point in row:
+			if _point_is_not_sea(point):
+				point_list.append(point)
+	return point_list
+
+func get_triangles() -> Array:  # Array[Array[Triangles]]
+	"""Returns array of arrays of triangles in a grid layout"""
+	return _grid_tris
+
+func get_middle_triangle() -> Triangle:
+	"""Get a middle(ish) triangle"""
+	var mid_row = _grid_tris[_grid_tris.size() / 2]
+	return mid_row[mid_row.size() / 2]
 
 func _add_grid_line(a: Vertex, b: Vertex) -> void:
 	var new_line := Edge.new(a, b)
@@ -92,19 +112,8 @@ func _create_triangle(row: int, col: int) -> Triangle:
 			points.append(_grid_points[row+1][(col/2)+1])
 	return Triangle.new(points, row, col)
 
-func get_cell_count() -> int:
-	return _cell_count
-
 func _point_is_not_sea(point: Vertex) -> bool:
 	return not point.has_polygon_with_parent(null)
-
-func get_island_points() -> Array:
-	var point_list: Array = []
-	for row in _grid_points:
-		for point in row:
-			if _point_is_not_sea(point):
-				point_list.append(point)
-	return point_list
 
 func _update_debug_content() -> void:
 	# Just list the last few rows
@@ -113,10 +122,3 @@ func _update_debug_content() -> void:
 		for col in range(len(_grid_tris[row])-6, len(_grid_tris[row])):
 			_debug_content += str(_grid_tris[row][col]) + "\n"
 		_debug_content += "\n"
-	
-func get_triangles() -> Array:
-	"""Returns array of arrays of triangles in a grid layout"""
-	return _grid_tris
-	
-	
-	

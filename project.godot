@@ -19,15 +19,35 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://lib/geometry/Grid.gd"
 }, {
+"base": "Stage",
+"class": "IslandStage",
+"language": "GDScript",
+"path": "res://lib/terrain/IslandStage.gd"
+}, {
 "base": "Object",
 "class": "Model",
 "language": "GDScript",
 "path": "res://lib/geometry/Model.gd"
 }, {
+"base": "Utils",
+"class": "Region",
+"language": "GDScript",
+"path": "res://lib/terrain/Region.gd"
+}, {
+"base": "Object",
+"class": "Stage",
+"language": "GDScript",
+"path": "res://lib/terrain/Stage.gd"
+}, {
 "base": "Model",
 "class": "Triangle",
 "language": "GDScript",
 "path": "res://lib/geometry/Triangle.gd"
+}, {
+"base": "Object",
+"class": "Utils",
+"language": "GDScript",
+"path": "res://lib/terrain/Utils.gd"
 }, {
 "base": "Model",
 "class": "Vertex",
@@ -37,8 +57,12 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Edge": "",
 "Grid": "",
+"IslandStage": "",
 "Model": "",
+"Region": "",
+"Stage": "",
 "Triangle": "",
+"Utils": "",
 "Vertex": ""
 }
 

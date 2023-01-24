@@ -4,8 +4,8 @@ extends Model
 
 var _a: Vertex
 var _b: Vertex
-var _borders: Array
-var _river: Array
+var _borders: Array  # Array[Triangle]
+var _river: Array  # Array[Edge]
 
 func _init(a: Vertex, b: Vertex) -> void:
 	if Vertex.sort_vert_inv_hortz(a, b):
@@ -16,10 +16,10 @@ func _init(a: Vertex, b: Vertex) -> void:
 		_b = a
 	_borders = []
 
-func get_points() -> Array:
+func get_points() -> Array:  # -> Array[Vertex]
 	return [_a, _b]
 
-func get_bordering_triangles() -> Array:
+func get_bordering_triangles() -> Array:  # -> Array[Triangle]
 	return _borders
 
 func has_point(point: Vertex) -> bool:

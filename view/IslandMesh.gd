@@ -2,12 +2,19 @@ extends MeshInstance
 
 export (float) var edge_length: float = 10.0
 export (int) var edges_across: int = 100
+export (int) var land_cell_limit: int = 4000
+export (Color) var base_color: Color = Color8(24,64,24,255)
+export (Color) var land_color: Color = Color8(32,96,32,255)
 
 func _ready() -> void:
-	var grid = Grid.new(edge_length, edges_across, Color8(24,64,24,255))
+	var rng = RandomNumberGenerator.new()
+	var grid = Grid.new(edge_length, edges_across, base_color)
+	var island_stage = IslandStage.new(grid, land_color, land_cell_limit, rng.randi())
+	island_stage.perform()
+	
 	var island_mesh: Mesh = get_mesh_from_grid(grid)
 	set_mesh(island_mesh)
-	
+
 func get_mesh_from_grid(grid: Grid) -> Mesh:
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var island_mesh: Mesh = Mesh.new()
