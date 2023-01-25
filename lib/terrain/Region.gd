@@ -37,9 +37,16 @@ func remove_triangle_as_cell(triangle: Triangle) -> void:
 	triangle.set_parent(_parent)
 	_cells.erase(triangle)
 
-func expand_into_parent(rng: RandomNumberGenerator) -> void:
+func expand_into_parent(rng: RandomNumberGenerator) -> bool:
+	"""
+	Extend by a cell into the parent medium
+	Return true if there is no space left
+	"""
+	if _region_front.empty():
+		 return true
 	shuffle(rng, _region_front)
 	add_triangle_as_cell(_region_front.back())
+	return _region_front.empty()
 
 func expand_margins() -> void:
 	var border_cells: Array = []
@@ -52,12 +59,12 @@ func expand_margins() -> void:
 	for border_cell in border_cells:
 		remove_triangle_as_cell(border_cell)
 
-func get_some_triangles(count: int, rng: RandomNumberGenerator) -> Array:  # -> Array[Triangle]
+func get_some_triangles(rng: RandomNumberGenerator, count: int) -> Array:  # -> Array[Triangle]
 	"""Get upto count random cells from this region"""
 	var actual_count := int(min(count, len(_cells)))
-	var random_cells = _cells.slice(0, actual_count)
+	var random_cells = _cells.duplicate()
 	shuffle(rng, random_cells)
-	return random_cells
+	return random_cells.slice(0, actual_count - 1)
 
 func identify_perimeter_points() -> void:
 	var region_points : Array = _get_points_in_region()
@@ -77,10 +84,10 @@ func identify_perimeter_points() -> void:
 func get_color() -> Color:
 	return _color
 
-func get_outer_perimeter_points() -> Array:
+func get_outer_perimeter_points() -> Array:  # -> Array[Vertex]
 	return _perimeter_points
 
-func get_inner_perimeter_points() -> Array:
+func get_inner_perimeter_points() -> Array:  # -> Array[Vertex]
 	return _inner_perimeter
 
 func has_exit_point() -> bool:
