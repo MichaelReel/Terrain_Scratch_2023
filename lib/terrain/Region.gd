@@ -12,6 +12,8 @@ var _region_front: Array  # Array[Triangle
 var _exit_point: Vertex
 var _perimeter_height: float = 0.0
 var _perimeter_outlined: bool = false
+var _points_collected: bool = false
+var _points: Array
 
 func _init(start_triangle: Triangle, color: Color, parent: Region = null) -> void:
 	_parent = parent
@@ -68,7 +70,7 @@ func get_some_triangles(rng: RandomNumberGenerator, count: int) -> Array:  # -> 
 	return random_cells.slice(0, actual_count - 1)
 
 func identify_perimeter_points() -> void:
-	var region_points : Array = _get_points_in_region()
+	var region_points : Array = get_points_in_region()
 	for point in region_points:
 		if point.has_polygon_with_parent(_parent):
 			_perimeter_points.append(point)
@@ -207,11 +209,13 @@ func _remove_small_portion_boundaries(chains: Array) -> void:  # (chains: Array[
 				inward_front.append(neighbour)
 		remove_triangle_as_cell(tri)
 
-func _get_points_in_region() -> Array:  # Array[Vertex]
+func get_points_in_region() -> Array:  # Array[Vertex]
 	"""Get all the points within the region"""
-	var points: Array = []
-	for triangle in _cells:
-		for point in triangle.get_vertices():
-			if not point in points:
-				points.append(point)
-	return points
+	if not _points_collected:
+		_points = []
+		for triangle in _cells:
+			for point in triangle.get_vertices():
+				if not point in _points:
+					_points.append(point)
+		_points_collected = true
+	return _points
