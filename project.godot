@@ -24,6 +24,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://lib/terrain/IslandStage.gd"
 }, {
+"base": "Stage",
+"class": "LakeStage",
+"language": "GDScript",
+"path": "res://lib/terrain/LakeStage.gd"
+}, {
 "base": "Object",
 "class": "Model",
 "language": "GDScript",
@@ -63,6 +68,7 @@ _global_script_class_icons={
 "Edge": "",
 "Grid": "",
 "IslandStage": "",
+"LakeStage": "",
 "Model": "",
 "Region": "",
 "RegionStage": "",

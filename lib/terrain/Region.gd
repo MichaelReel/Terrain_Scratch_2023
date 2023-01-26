@@ -198,10 +198,8 @@ func _remove_small_portion_boundaries(chains: Array) -> void:  # (chains: Array[
 	for non_perimeter_edge in non_perimeter_edges:
 		for tri in non_perimeter_edge.get_bordering_triangles():
 			if tri.get_parent() == self and not tri in inward_front:
-#				remove_triangle_as_cell(tri)
 				inward_front.append(tri)
-		
-	var cells_in_main: Array = []
+	
 	while not inward_front.empty():
 		var tri = inward_front.pop_back()
 		for neighbour in tri.get_neighbours():

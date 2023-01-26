@@ -1,22 +1,22 @@
-class_name RegionStage
+class_name LakeStage
 extends Stage
-"""Stage for sub-dividing island surface area into roughly even sections"""
 
-var _parent: Region
+var _region_stage: RegionStage
 var _colors: PoolColorArray
 var _regions: Array = []  # Array[Region]
 var _expansion_done: bool = false
-var _perimeter_done: bool = false
 var _margins_done: bool = false
+var _perimeter_done: bool = false
 var _rng := RandomNumberGenerator.new()
 
-func _init(parent: Region, colors: PoolColorArray, rng_seed: int):
-	_parent = parent
+
+func _init(region_stage: RegionStage, colors: PoolColorArray, rng_seed: int):
+	_region_stage = region_stage
 	_colors = colors
 	_rng.seed = rng_seed
 
 func _to_string() -> String:
-	return "Region Stage"
+	return "Lake Stage"
 
 func perform() -> void:
 	_setup_regions()
@@ -45,9 +45,8 @@ func _expand_margins() -> void:
 		region.expand_margins()
 
 func _setup_regions() -> void:
-	var start_triangles = _parent.get_some_triangles(_rng, len(_colors))
-	for i in range(len(start_triangles)):
-		_regions.append(Region.new(start_triangles[i], _colors[i], _parent))
-
-func get_regions() -> Array:
-	return _regions
+	for parent_region in _region_stage.get_regions():
+		# The parent region might not be big enough to have subregions
+		var start_triangles = parent_region.get_some_triangles(_rng, len(_colors))
+		for i in range(len(start_triangles)):
+			_regions.append(Region.new(start_triangles[i], _colors[i], parent_region))

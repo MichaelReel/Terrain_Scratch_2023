@@ -5,7 +5,7 @@ export (int) var edges_across: int = 100
 export (int) var land_cell_limit: int = 4000
 export (Color) var base_color: Color = Color8(24,64,24,255)
 export (Color) var land_color: Color = Color8(32,96,32,255)
-export (PoolColorArray) var region_colors: = PoolColorArray([
+export (PoolColorArray) var region_colors := PoolColorArray([
 	Color8(  0,   0, 192, 255),
 	Color8(  0, 192,   0, 255),
 	Color8(192,   0,   0, 255),
@@ -13,7 +13,12 @@ export (PoolColorArray) var region_colors: = PoolColorArray([
 	Color8(192, 192,   0, 255),
 	Color8(192,   0, 192, 255),
 ])
-export (bool) var stages_in_thread: bool = false
+export (PoolColorArray) var lake_colors := PoolColorArray([
+	Color8( 48,  48, 192, 255),
+	Color8( 32,  32, 192, 255),
+	Color8( 16,  16, 192, 255),
+])
+export (bool) var stages_in_thread: bool = true
 
 var thread: Thread
 
@@ -33,11 +38,13 @@ func _stage_thread() -> void:
 	var grid = Grid.new(edge_length, edges_across, base_color)
 	var island_stage = IslandStage.new(grid, land_color, land_cell_limit, rng.randi())
 	var regions_stage = RegionStage.new(island_stage.get_region(), region_colors, rng.randi())
+	var lakes_stage = LakeStage.new(regions_stage, lake_colors, rng.randi())
 	var island_mesh: Mesh
 	
 	var stages = [
 		island_stage,
 		regions_stage,
+		lakes_stage,
 	]
 	
 	island_mesh = _get_mesh_from_grid(grid)
