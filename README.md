@@ -14,7 +14,7 @@ There are some important calculations involved in positioning of vertices, order
 
 The vertices will be places in the horzontal plane as equally as possible, in a triangle tessilation:
 
-```
+```text
 ____\/____\/____\/____\/____
     /\    /\    /\    /\    
 \  /  \  /  \  /  \  /  \  /
@@ -26,7 +26,7 @@ ____\/____\/____\/____\/____
 \  /  \  /  \  /  \  /  \  /
  \/____\/____\/____\/____\/_
  /\    /\    /\    /\    /\ 
-``` 
+```
 
 The difference between points on the x axis will simply be the length of the side (`s`) of a triangle.
 The difference between the lateral lines (in the grid above) will be the height (`h`) of a triangle.
@@ -35,7 +35,7 @@ The height can be calculate as the root of three quarters by the length of the s
 
 `h = sqrt(0.75) * s`
 
-```
+```text
  |\         h^2 + (s/2)^2 = s^2
  | \        h^2 = s^2 - (s/2)^2
  |  \s      h^2 = s^2 - (s^2 / 4)
@@ -50,7 +50,8 @@ h|   \      h^2 = (1 - 1/4) * s^2
 The rules here are important to understand for the polygon creation, as this affects the ordering.
 
 The initial set of vertices are created first. The ordering by row and then column is fairly straight forward:
-```
+
+```text
 row  |
  0   | 0_____1_____2_____3_____4
      |  \    /\    /\    /\    /
@@ -65,6 +66,7 @@ row  |
 ```
 
 The connections between vertices form the edges, and these are created in the specific order for each vertex that is: a) Not on row 0 b) Not on column 0:
+
 1) Connect from the vertex of the lower column index on the same row (to the left)
 2) Connect to one of the vertices in the row with lower index (above), with the same column index as the current point:
   a) On an `even` row this will be to the top right, if it exists.
@@ -73,7 +75,7 @@ The connections between vertices form the edges, and these are created in the sp
   a) On an `even` row this will be to the top left, with column index less than the column index of this point in this column, if that point exists.
   b) On an `odd` row this will be to the top right, with column index greater than the column index of this point, if the point exists.
 
-```
+```text
             Odd point connections:                    Even point connections: 
                            
          (x,z-1) *           * (x+1,z-1)         (x-1,z-1) *           * (x,z-1)
@@ -92,7 +94,7 @@ The triangles will be arranged in rows and have their own grid coordinations.
 
 Each row will have a line of triangles alternating in orientation:
 
-```
+```text
                       point columns
              0         1         2         3   
          ,-------. ,-------. ,-------. ,-------. 
@@ -131,7 +133,6 @@ For each column of points there will be 2 columns of triangles, except the last 
 - `triangle_rows = points_row - 1`
 - `triangles_per_row = (points_per_row - 1) * 2`
 
-
 For each triangle with the coordinates `(tx,tz)`, the first (`px0, pz0`) second (`px1, pz1`) and third (`px2, pz2`) points will be the clockwise rotational positions, and this will depend on the parity of the row and column.
 
 > Godot [SurfaceTool](https://docs.godotengine.org/en/stable/classes/class_surfacetool.html#surfacetool) uses clockwise winding order.  
@@ -145,8 +146,7 @@ Assume all division is integer division such that the result of `a/b` is the sam
 | c)  | even          | odd        |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz+1`)|(`tx/2`,   | `tz+1`)|
 | d)  | odd           | odd        |(`tx/2`,   | `tz` )|(`tx/2+1`, | `tz`  )|(`tx/2+1`, | `tz+1`)|
 
-
-```
+```text
 a)                  b)                 c)                d)                 
   p0____________p1          p0                 p0          p0____________p1 
     \          /            /\                 /\            \          /   
@@ -166,7 +166,7 @@ The Triangle at position t(4,2) should have the points: `[p(2,2), p(3,2), p(2,3)
 - `p1 = (4/2+1, 2)`
 - `p2 = (4/2, 2+1)`
 
-```
+```text
 p(2,2)\/________\p(3,2)
       /\        /\ 
         \t(4,2)/   
@@ -182,7 +182,7 @@ The Triangle at position t(3,2) should have the points: `[p(2,2), p(2,3), p(1,3)
 - `p1 = (3/2+1, 2+1)`
 - `p2 = (3/2, 2+1)`
 
-```
+```text
      p(2,2)\/_
            /\   
           /  \  
@@ -198,7 +198,7 @@ The Triangle at position t(4,3) should have the points: `[p(2,3), p(3,4), p(2,4)
 - `p1 = (4/2+1, 3+1)`
 - `p2 = (4/2, 3+1)`
 
-```
+```text
      p(2,3)\/_
            /\   
           /  \  
@@ -214,7 +214,7 @@ The Triangle at position (5,3) should have the points: `[p(2,3), p(3,3), p(3,4)]
 - `p1 = (5/2+1, 3)`
 - `p2 = (5/2+1, 3+1)`
 
-```
+```text
 p(2,3)\/________\p(3,3)
       /\        /\ 
         \t(5,3)/   
@@ -226,11 +226,76 @@ p(2,3)\/________\p(3,3)
 
 ### Creating an Island
 
-Rather than using noise for the height map, this will begin with finding an outline for the island to act as a coast. This can be done a bunch of ways, but the requirement is to have an outline to a solid shape in the grid.
+Rather than using noise for the height map, this will begin with finding an outline for the island to act as a coast. The approach take is to create an expanding front of polygons, from the center of the grid, that upon filling a certain number of triangles will be outlined and filled for gaps.
 
-One approach, that will likely be used initially, is an expanding front of polygons that will upon filling a certain number of triangles, will be outlined and filled for gaps.
+- The initial island `region` starts with a single cell (a triangle) and a frontier list of 3 adjacent cells.
+- For each step, a cell is randomly taken from the frontier list, its non-region neighbours are added to the frontier, and the cell itself is added to the region.
+- Expansion stops when the number of cells in the region are equal or greater than the max.
 
-### Creating lakes
+```text
+  Start with 1 cell (#) and        Select a frontier cell      Add new neighbours to frontier
+    3 frontier cells (?)                randomly (X)            and the random cell to region
+____\/____\/____\/____\/____    ____\/____\/____\/____\/____    ____\/____\/____\/____\/____
+    /\    /\    /\    /\            /\    /\    /\    /\            /\    /\    /\    /\    
+\  /  \  /  \  /  \  /  \  /    \  /  \  /  \  /  \  /  \  /    \  /  \  /  \  /? \  /  \  /
+_\/____\/____\/____\/____\/_    _\/____\/____\/____\/____\/_    _\/____\/____\/____\/____\/_
+ /\    /\ ?  /\  ? /\    /\      /\    /\ ?  /\  X /\    /\      /\    /\ ?  /\####/\    /\ 
+/  \  /  \  /##\  /  \  /  \    /  \  /  \  /##\  /  \  /  \    /  \  /  \  /##\##/ ?\  /  \
+____\/____\/####\/____\/____    ____\/____\/####\/____\/____    ____\/____\/####\/____\/____
+    /\    /\    /\    /\            /\    /\    /\    /\            /\    /\    /\    /\    
+\  /  \  /  \? /  \  /  \  /    \  /  \  /  \? /  \  /  \  /    \  /  \  /  \? /  \  /  \  /
+ \/____\/____\/____\/____\/_     \/____\/____\/____\/____\/_     \/____\/____\/____\/____\/_
+ /\    /\    /\    /\    /\      /\    /\    /\    /\    /\      /\    /\    /\    /\    /\ 
+ Cells = 1, Frontier = 3         Cells = 1, Frontier = 2         Cells = 2, Frontier = 4
+```
+
+There is some complexity around the outlining and gap finding. This is done by:
+
+  1. Find the perimeter edges:
+    - For every edge on every cell in the region:
+      - if the edge has a cell outside the region cells, this edge is a perimeter edge.
+  2. Chain the edges together into continuous arrays (there might end up only one):
+    - This is very complex to explain at the minute, see the [code](lib/terrain/Utils.gd#L11) for details.
+  3. We assume any chains that are not in the longest chain are internal:
+    - Frontier cells in these chains are assimilated, using a similar mechanism to the expansion.
+    - Non-region neighbour cells to the assimilated frontier cells are added to the frontier.
+    - Expanding into the gaps continues until there are no frontier cells left that are not on the longest perimeter chain.
+  
+The result should be a region made up of cells with a single continuous perimeter and no internal gaps.
+
+### Creating regions in which to create the lakes
+
+This uses a similar approach to the above island region expansion:
+
+- The initial `region` are all started with a single cell within the bounds of the parent `island_region`.
+- Each region starts with a single unique cell and 3 frontier cells.
+- For each step, a cell from the frontier is chosen, its `island_region` neighbours are added to the local regions frontier and the cell is added to the local region.
+- The regions take turns performing the assimilation step.
+- Expansion stops when non of the regions are able to expand anymore - there are no `island_region` cells left.
+
+There are some further steps in the region creation. Firstly a margin creation step is performed:
+
+- For each region:
+  - Find all the edge cells in the local region
+  - Move all the edge cells back from this local region to the parent `island_region`.
+  - Also, re-add the newly returned cells to the frontier for the local region.
+
+This can leave small detached cells separate from the main region, so we perform a similar perimeter finding exercise as above:
+
+  1. Find the perimeter edges:
+    - For every edge on every cell in the region:
+      - if the edge has a cell outside the region cells, this edge is a perimeter edge.
+  2. Chain the edges together into continuous arrays (there might end up only one):
+    - This is very complex to explain at the minute, see the [code](lib/terrain/Utils.gd#L11) for details.
+  3. Unlike the code above, we now assume that each smaller chain encircles a detached group of region cells.
+    - Go through the frontier cells and filter out any that aren't on the main perimeter.
+    - Merge all the smaller chains into a single list of edges.
+    - Get a list of the cells still in the region that are against the small perimeters.
+    - Use the list as a frontier and as we remove a cell from the region, add any region neighbours we might have missed to the frontier.
+
+This will leave us with a set of regions that are each a single continuous region within the bounds of the `island_region`.
+
+### Create the lakes
 
 Lakes shall be regions within the island shape, these will be used by the height generation to retain bodies of water.
 

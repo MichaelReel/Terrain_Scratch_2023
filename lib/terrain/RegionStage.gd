@@ -6,7 +6,7 @@ var _parent: Region
 var _colors: PoolColorArray
 var _regions: Array = []  # Array[Region]
 var _expansion_done: bool = false
-#var _perimeter_done: bool = false
+var _perimeter_done: bool = false
 var _margins_done: bool = false
 var _rng := RandomNumberGenerator.new()
 
@@ -21,7 +21,7 @@ func _to_string() -> String:
 func perform() -> void:
 	_setup_regions()
 	
-	while not _expansion_done or not _margins_done:
+	while not _expansion_done or not _perimeter_done or not _margins_done:
 		if not _expansion_done:
 			var done = true
 			for region in _regions:
@@ -32,8 +32,13 @@ func perform() -> void:
 			continue
 		
 		if not _margins_done:
-#			_expand_margins()
+			_expand_margins()
 			_margins_done = true
+			
+		if not _perimeter_done:
+			for region in _regions:
+				var _lines: Array = region.get_perimeter_lines(false)
+			_perimeter_done = true
 
 func _expand_margins() -> void:
 	for region in _regions:
