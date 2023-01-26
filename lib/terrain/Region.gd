@@ -211,7 +211,7 @@ func _get_points_in_region() -> Array:  # Array[Vertex]
 	"""Get all the points within the region"""
 	var points: Array = []
 	for triangle in _cells:
-		for point in triangle.get_points():
+		for point in triangle.get_vertices():
 			if not point in points:
 				points.append(point)
 	return points

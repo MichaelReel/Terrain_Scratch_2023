@@ -295,9 +295,11 @@ This can leave small detached cells separate from the main region, so we perform
 
 This will leave us with a set of regions that are each a single continuous region within the bounds of the `island_region`.
 
-### Create the lakes
+### Creating the lakes
 
-Lakes shall be regions within the island shape, these will be used by the height generation to retain bodies of water.
+Lakes shall be regions within the region shapes. These will use the same mechanism to taking up space in the regions that the regions use to populate the `island_region`.
+
+The lakes will be used by the height map stage to form the landscape by marking where the terrain should cup to form pools.
 
 ### Getting the height map
 

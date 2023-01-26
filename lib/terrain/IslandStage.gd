@@ -5,8 +5,6 @@ extends Stage
 var _grid: Grid
 var _island_region: Region
 var _cell_limit: int
-var _expansion_done: bool = false
-var _perimeter_done: bool = false
 var _rng := RandomNumberGenerator.new()
 
 func _init(grid: Grid, land_color: Color, cell_limit: int, rng_seed: int):
@@ -20,17 +18,13 @@ func _to_string() -> String:
 	return "Island Stage"
 
 func perform() -> void:
-	while not _expansion_done or not _perimeter_done:
-		if not _expansion_done:
-			var _done = _island_region.expand_into_parent(_rng)
-			
-			if _island_region.get_cell_count() >= _cell_limit:
-				_expansion_done = true
-			continue
-		
-		if not _perimeter_done:
-			var _lines := _island_region.get_perimeter_lines()
-			_perimeter_done = true
+	var expansion_done := false
+	while not expansion_done:
+		var _done = _island_region.expand_into_parent(_rng)
+		if _island_region.get_cell_count() >= _cell_limit:
+			expansion_done = true
+	
+	var _lines := _island_region.get_perimeter_lines()
 
 func get_region() -> Region:
 	return _island_region

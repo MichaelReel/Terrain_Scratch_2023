@@ -30,6 +30,16 @@ func has_polygon_with_parent(parent: Object) -> bool:  # (parent: Region | null)
 			return true
 	return false
 
+func height_set() -> bool:
+	return _height_set
+
+func set_height(height: float) -> void:
+	_height_set = true
+	_pos.y = height
+
+func get_height() -> float:
+	return _pos.y
+
 func add_connection(edge: Object) -> void:  # (edge: Edge)
 	if not edge in _connections:
 		_connections.append(edge)
@@ -41,8 +51,14 @@ func add_polygon(triangle: Object) -> void:  # (triangle: Triangle)
 func get_vector() -> Vector3:
 	return _pos
 
-func get_connections() -> Array:
+func get_connections() -> Array:  # -> Array[Edge]
 	return _connections
+
+func get_connected_points() -> Array:  # -> Array[Vertex]
+	var connected_points := []
+	for con in _connections:
+		connected_points.append(con.other_point(self))
+	return connected_points
 
 func get_triangles() -> Array:  # -> Array[Triangle]
 	return _triangles
