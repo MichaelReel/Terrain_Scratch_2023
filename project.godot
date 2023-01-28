@@ -49,7 +49,12 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://lib/terrain/RegionStage.gd"
 }, {
-"base": "Object",
+"base": "Stage",
+"class": "RiverStage",
+"language": "GDScript",
+"path": "res://lib/terrain/RiverStage.gd"
+}, {
+"base": "Utils",
 "class": "Stage",
 "language": "GDScript",
 "path": "res://lib/terrain/Stage.gd"
@@ -78,6 +83,7 @@ _global_script_class_icons={
 "Model": "",
 "Region": "",
 "RegionStage": "",
+"RiverStage": "",
 "Stage": "",
 "Triangle": "",
 "Utils": "",
