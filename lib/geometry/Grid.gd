@@ -82,6 +82,9 @@ func get_middle_triangle() -> Triangle:
 	var mid_row = _grid_tris[_grid_tris.size() / 2]
 	return mid_row[mid_row.size() / 2]
 
+func get_color() -> Color:
+	return _color
+
 func _add_grid_line(a: Vertex, b: Vertex) -> void:
 	var new_line := Edge.new(a, b)
 	a.add_connection(new_line)

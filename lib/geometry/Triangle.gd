@@ -86,6 +86,18 @@ func get_color():  # -> Color | null:
 func get_vertices() -> Array:  # Array[Vertex]
 	return _points
 
+func get_river_vertex_colors(river_color: Color, null_color: Color) -> Dictionary:  # Dictionary[Vertex, Color]
+	var point_color_dict := {}
+	for point in _points:
+		point_color_dict[point] = get_color()
+		if point_color_dict[point] == null:
+			point_color_dict[point] = null_color
+	for edge in _edges:
+		if edge.has_river():
+			for point in edge.get_points():
+				point_color_dict[point] = river_color
+	return point_color_dict
+
 func get_edges() -> Array:  # Array[Edge]
 	return _edges
 

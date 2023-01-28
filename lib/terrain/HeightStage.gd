@@ -44,26 +44,6 @@ func perform() -> void:
 			if _uphill_front.empty():
 				_uphill_complete = true
 			continue
-	
-	
-	
-	
-#	_setup_sealevel()
-#	_setup_height_fronts()
-#
-#	while (
-#		not _downhill_complete 
-#		or not _uphill_complete
-#	):
-#		if not _downhill_complete:
-#			_step_downhill()
-#			if _downhill_front.empty():
-#				_downhill_complete = true
-#
-#		if not _uphill_complete:
-#			_step_uphill()
-#			if _uphill_front.empty():
-#				_uphill_complete = true
 
 func _setup_sealevel() -> void:
 	_sealevel_points = []
@@ -103,7 +83,7 @@ func _step_uphill() -> void:
 			if not point.height_set():
 				new_uphill_front.append(point)
 				# If this point is on a sub-region lake,
-				var lake : Region = _lake_stage.sub_region_for_point(point)
+				var lake : Region = _lake_stage.lake_for_point(point)
 				if lake and not lake.has_exit_point():
 					# Assume water can exit on this side, and lake is at this height
 					lake.set_exit_point(point)

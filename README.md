@@ -303,4 +303,32 @@ The lakes will be used by the height map stage to form the landscape by marking 
 
 ### Getting the height map
 
-The coastal points will be set as sea-level. Outward points will drop with each movement away from the coast. Inward points will rise with eash movement from the coast, but will envelop lakes. Lake edges will take a height and will drop within their bounds.
+- First the coastal points are determined using the perimeter of the `island_region` and each point is set at sea-level.
+- 2 fronts are then setup, one for the downhill slope going outwards from the perimeter and one for the upward slope going into the island.
+- 2 height variables are established, one for going downhill and one for going uphill, set to sea level.
+- The initial downhill points are processed first. For each "step" outward:
+  - The downward height variable is lowered.
+  - All the points that are currently in the front are given the current downward height.
+  - A new front is created containing all the adjacent points to the front in the downhill direction.
+- While there are no downward points to process, the uphill front is processed. For each "step" uphill:
+  - The uphill height variable is raised.
+  - All the points that are currently in the front are given the current upward height.
+  - A new front is created containing all the adjacent points to the front in the uphill direction.
+  - If one of the new uphill front points is in the region of a lake:
+    - Mark this point on the lake as an "exit point" for that lake (this is used later for rivers).
+    - Set the height of the lake (also used later).
+    - Get the outer perimeter points of the lake and add all of them to the uphill frontier.
+    - Get all the points just inside the perimeter of the lake and add them to the *downhill* frontier.
+    - Set the downhill height variable to just below the current uphill height.
+    - Return to the mechanism above that processes the downhill points.
+
+### Creating the river paths
+
+- The first part is to create a set of river "heads":
+  - Each "exit point" of each lake will make up a river head.
+  - Some other random points are are not in a lake or river already.
+- For each selected river head:
+  - Get the neighbour point which is: lowest, not in a lake river or sea.
+  - Continue extending the river to the next lowest neighbour not in a lake, river or sea.
+  - Stop when the river eventually reaches a lake, river or sea - include the last leg to terminate the river.
+  - If the river runs any distance, then add it to the collection of rivers.

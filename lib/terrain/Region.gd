@@ -8,7 +8,7 @@ var _cells: Array = []  # Array[Triangle]
 var _perimeter_points: Array = []  # Array[Vertex]
 var _perimeter_lines: Array = []  # Array[Edge]
 var _inner_perimeter: Array = []  # Array[Vertex]
-var _region_front: Array  # Array[Triangle
+var _region_front: Array  # Array[Triangle]
 var _exit_point: Vertex
 var _perimeter_height: float = 0.0
 var _perimeter_outlined: bool = false
@@ -21,6 +21,14 @@ func _init(start_triangle: Triangle, color: Color, parent: Region = null) -> voi
 	_region_front = [start_triangle]
 
 func add_triangle_as_cell(triangle: Triangle) -> void:
+	# Don't add a triangle we already have
+	if triangle in _cells:
+		return
+	
+	# Remove the triangle from it's current parent
+	if triangle.get_parent():
+		triangle.get_parent()._cells.erase(triangle)
+	
 	# Integrate this cell from the the region edges
 	triangle.set_parent(self)
 	_cells.append(triangle)
@@ -30,14 +38,18 @@ func add_triangle_as_cell(triangle: Triangle) -> void:
 	for neighbour in triangle.get_neighbours_with_parent(_parent):
 		if not neighbour in _region_front:
 			_region_front.append(neighbour)
-			
+	
 	# Preload edges on the grid boundary into perimeter_lines
 	if triangle.is_on_grid_boundary():
 		_perimeter_lines.append_array(triangle.get_edges_on_grid_boundary())
 
 func remove_triangle_as_cell(triangle: Triangle) -> void:
-	triangle.set_parent(_parent)
+	if not triangle in _cells:
+		return
 	_cells.erase(triangle)
+	if _parent:
+		_parent._cells.append(triangle)
+	triangle.set_parent(_parent)
 
 func expand_into_parent(rng: RandomNumberGenerator) -> bool:
 	"""
@@ -52,15 +64,23 @@ func expand_into_parent(rng: RandomNumberGenerator) -> bool:
 
 func expand_margins() -> void:
 	var border_cells: Array = []
+	# Find cells on the boundaries of the region
 	for cell in _cells:
 		if cell.count_neighbours_with_parent(self) < 3:
 			border_cells.append(cell)
 		elif cell.count_corner_neighbours_with_parent(self) < 9:
 			border_cells.append(cell)
+	
 	# Return the border cells to the parent and mark as frontier
 	for border_cell in border_cells:
 		remove_triangle_as_cell(border_cell)
-		_region_front = border_cells
+	
+	# Recreate the frontier for this region, subset of removed cells
+	var new_region_front: Array = []
+	for border_cell in border_cells:
+		if border_cell.count_neighbours_with_parent(self) > 0:
+			new_region_front.append(border_cell)
+	_region_front = new_region_front
 
 func get_some_triangles(rng: RandomNumberGenerator, count: int) -> Array:  # -> Array[Triangle]
 	"""Get upto count random cells from this region"""
@@ -111,7 +131,10 @@ func set_water_height(perimeter_height: float) -> void:
 func get_perimeter_lines(fill_in: bool = true) -> Array:  # -> Array[Vertex]
 	if _perimeter_outlined:
 		return _perimeter_lines
-		
+	
+	if not _cells:
+		return []
+	
 	var region_front := _region_front.duplicate()
 	
 	# using the _region_front, get all the lines joining to parented cells
@@ -141,6 +164,17 @@ func get_perimeter_lines(fill_in: bool = true) -> Array:  # -> Array[Vertex]
 	_perimeter_outlined = true
 	return _perimeter_lines
 
+func get_points_in_region() -> Array:  # Array[Vertex]
+	"""Get all the points within the region"""
+	if not _points_collected:
+		_points = []
+		for triangle in _cells:
+			for point in triangle.get_vertices():
+				if not point in _points:
+					_points.append(point)
+		_points_collected = true
+	return _points
+
 func _add_non_perimeter_boundaries() -> void:
 	"""
 	Find triangles on the boundary front that aren't against the perimeter and
@@ -156,6 +190,7 @@ func _add_non_perimeter_boundaries() -> void:
 			if edge in _perimeter_lines:
 				has_edge_in_perimeter = true
 				break
+		
 		# This frontier triangle does not have an edge on the main perimeter
 		# This is basically add_triangle_as_cell but with a delayed erase
 		if not has_edge_in_perimeter:
@@ -188,6 +223,7 @@ func _remove_small_portion_boundaries(chains: Array) -> void:  # (chains: Array[
 				on_new_perimeter = true
 		if on_new_perimeter:
 			new_region_front.append(front_cell)
+	
 	_region_front = new_region_front
 	
 	# Easier to work with a single array
@@ -208,14 +244,3 @@ func _remove_small_portion_boundaries(chains: Array) -> void:  # (chains: Array[
 			if neighbour.get_parent() == self and not neighbour in inward_front:
 				inward_front.append(neighbour)
 		remove_triangle_as_cell(tri)
-
-func get_points_in_region() -> Array:  # Array[Vertex]
-	"""Get all the points within the region"""
-	if not _points_collected:
-		_points = []
-		for triangle in _cells:
-			for point in triangle.get_vertices():
-				if not point in _points:
-					_points.append(point)
-		_points_collected = true
-	return _points

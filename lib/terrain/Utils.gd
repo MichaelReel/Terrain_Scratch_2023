@@ -19,7 +19,7 @@ static func _get_chains_from_lines(perimeter: Array) -> Array:  # (perimeter: Ar
 	# Identify chains by tracking each point in series of perimeter lines
 	var chains: Array = []
 	while not perimeter_lines.empty():
-		# Next chain, pick the end of a line
+		# Setup the next chain, pick the end of a line
 		var chain_done = false
 		var chain_flipped = false
 		var chain: Array = []

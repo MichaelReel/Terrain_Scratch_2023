@@ -1,5 +1,5 @@
 class_name Stage
-extends Object
+extends Utils
 """
 Base interface for each stage
 """

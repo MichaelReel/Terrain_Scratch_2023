@@ -46,3 +46,12 @@ func shares_a_point_with(other: Edge) -> bool:
 func set_border_of(triangle) -> void:  # (triangle: Triangle)
 	if not triangle in _borders:
 		_borders.append(triangle)
+
+func lowest_end_point() -> Vertex:
+	return _a if _a.get_height() < _b.get_height() else _b
+
+func set_river(river: Array) -> void:  # (river: Array[Edge])
+	_river = river
+
+func has_river() -> bool:
+	return true if _river else false

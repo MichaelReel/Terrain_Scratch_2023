@@ -35,11 +35,26 @@ func perform() -> void:
 	
 	_identify_perimeter_points()
 
-func sub_region_for_point(point: Vertex) -> Object:  # -> Region | null
+func lake_for_point(point: Vertex) -> Object:  # -> Region | null
 	for region in _regions:
 		if point.has_polygon_with_parent(region):
 			return region
 	return null
+
+func get_regions() -> Array:  # -> Array[Region]
+	return _regions
+
+func point_in_water_body(point: Vertex) -> bool:
+	if _point_has_lake(point) or point.has_polygon_with_parent(null):
+		return true
+	return false
+
+func filter_points_no_lake(points: Array) -> Array:  # (points: Array[Vertex]) -> Array[Vertex]
+	var filtered_points: Array = []
+	for point in points:
+		if not _point_has_lake(point):
+			filtered_points.append(point)
+	return filtered_points
 
 func _expand_margins() -> void:
 	for region in _regions:
@@ -52,6 +67,8 @@ func _setup_regions() -> void:
 		for i in range(len(start_triangles)):
 			_regions.append(Region.new(start_triangles[i], _colors[i], parent_region))
 
+func _point_has_lake(point: Vertex) -> bool:
+	return true if lake_for_point(point) else false
 
 func _identify_perimeter_points() -> void:
 	for region in _regions:
