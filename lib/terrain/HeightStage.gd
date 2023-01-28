@@ -3,7 +3,7 @@ extends Stage
 
 var _island: Region
 var _lake_stage: LakeStage
-var _diff_height: float = 5.0
+var _diff_height: float = 2.0
 var _sealevel_points: Array = []  # Array[Vertex]
 var _downhill_front: Array = []  # Array[Vertex]
 var _downhill_height: float = -_diff_height

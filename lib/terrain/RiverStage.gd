@@ -41,6 +41,7 @@ func _setup_rivers():
 			
 			var river = create_river(outlet_point.get_connection_to_point(neighbour))
 			if not river.empty():
+				outlet_point.set_as_head()
 				_rivers.append(river)
 			
 			break
@@ -49,15 +50,20 @@ func _setup_rivers():
 	var island_points = _grid.get_island_points()
 	island_points = _lake_stage.filter_points_no_lake(island_points)
 	shuffle(_rng, island_points)
+	
 	if len(island_points) > _river_count:
 		island_points.resize(_river_count)
+	
 	for island_point in island_points:
 		var neighbour_points = island_point.get_connected_points()
 		neighbour_points.sort_custom(Vertex, "sort_height")
+		
 		for neighbour in neighbour_points:
 			var river = create_river(island_point.get_connection_to_point(neighbour))
 			if not river.empty():
+				island_point.set_as_head()
 				_rivers.append(river)
+			
 			break
 
 func create_river(start_edge: Edge) -> Array:
@@ -86,4 +92,5 @@ func create_river(start_edge: Edge) -> Array:
 	if not next_edge.has_river():
 		river.append(next_edge)
 		next_edge.set_river(river)
+		connection_point.set_as_mouth()
 	return river

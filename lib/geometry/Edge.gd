@@ -52,6 +52,8 @@ func lowest_end_point() -> Vertex:
 
 func set_river(river: Array) -> void:  # (river: Array[Edge])
 	_river = river
+	_a.set_river(river)
+	_b.set_river(river)
 
 func has_river() -> bool:
 	return true if _river else false

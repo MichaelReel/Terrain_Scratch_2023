@@ -24,6 +24,8 @@ func perform() -> void:
 		if _island_region.get_cell_count() >= _cell_limit:
 			expansion_done = true
 	
+	_island_region.perform_expand_smoothing()
+	
 	var _lines := _island_region.get_perimeter_lines()
 
 func get_region() -> Region:

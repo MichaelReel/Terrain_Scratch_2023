@@ -63,13 +63,7 @@ func expand_into_parent(rng: RandomNumberGenerator) -> bool:
 	return _region_front.empty()
 
 func expand_margins() -> void:
-	var border_cells: Array = []
-	# Find cells on the boundaries of the region
-	for cell in _cells:
-		if cell.count_neighbours_with_parent(self) < 3:
-			border_cells.append(cell)
-		elif cell.count_corner_neighbours_with_parent(self) < 9:
-			border_cells.append(cell)
+	var border_cells: Array = _find_inner_border_cells()
 	
 	# Return the border cells to the parent and mark as frontier
 	for border_cell in border_cells:
@@ -118,6 +112,7 @@ func has_exit_point() -> bool:
 	
 func set_exit_point(point: Vertex) -> void:
 	_exit_point = point
+	point.set_as_exit_point(self)
 	
 func get_exit_point() -> Vertex:
 	return _exit_point
@@ -174,6 +169,39 @@ func get_points_in_region() -> Array:  # Array[Vertex]
 					_points.append(point)
 		_points_collected = true
 	return _points
+
+func perform_expand_smoothing() -> void:
+	"""
+	Triangles on the frontier should be incorporated anytime they are
+	surrounded on three corners by this region
+	"""
+	# For each frontier triangle, check if it is "surrounded"
+	var still_smoothing: bool = true
+	while still_smoothing:
+		still_smoothing = false
+		for front_cell in _region_front:
+			if front_cell.is_surrounded_by_region(self):
+				add_triangle_as_cell(front_cell)
+				still_smoothing = true
+
+func perform_shrink_smoothing() -> void:
+	"""
+	Triangles on the inner edges should be released anytime they are
+	surrounded by the parent region
+	"""
+	# For each inner edge triangle, check if it is "surrounded" by the parent
+	pass
+
+func _find_inner_border_cells() -> Array:  # Array[Triangles]
+	"""Find the cells on the edge, but inside the notional perimeter"""
+	var border_cells: Array = []
+	# Find cells on the boundaries of the region
+	for cell in _cells:
+		if cell.count_neighbours_with_parent(self) < 3:
+			border_cells.append(cell)
+		elif cell.count_corner_neighbours_with_parent(self) < 9:
+			border_cells.append(cell)
+	return border_cells
 
 func _add_non_perimeter_boundaries() -> void:
 	"""

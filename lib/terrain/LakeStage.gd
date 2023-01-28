@@ -31,6 +31,7 @@ func perform() -> void:
 	_expand_margins()
 	
 	for region in _regions:
+		region.perform_shrink_smoothing()
 		var _lines: Array = region.get_perimeter_lines(false)
 	
 	_identify_perimeter_points()

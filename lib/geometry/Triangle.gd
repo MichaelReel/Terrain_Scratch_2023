@@ -8,6 +8,7 @@ var _index_col: int
 var _edges: Array  # Array[Edge]
 var _neighbours: Array = []  # Array[Triangle]
 var _corner_neighbours: Array = []  # Array[Triangle]
+#var _opposing_corner_side_map: Dictionary  # Dictionary[Vertex, Edge]
 var _parent: Object = null
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
@@ -23,6 +24,13 @@ func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Ar
 		point.add_polygon(self)
 	for edge in _edges:
 		edge.set_border_of(self)
+		
+#	# Map each corner to the opposing side, this relies on point/edge order above
+#	_opposing_corner_side_map = {
+#		_points[0]: _edges[1],
+#		_points[1]: _edges[2],
+#		_points[2]: _edges[0],
+#	}
 
 func _to_string() -> String:
 	return "%d,%d: %s" % [_index_row, _index_col, _points]
@@ -86,16 +94,18 @@ func get_color():  # -> Color | null:
 func get_vertices() -> Array:  # Array[Vertex]
 	return _points
 
-func get_river_vertex_colors(river_color: Color, null_color: Color) -> Dictionary:  # Dictionary[Vertex, Color]
+func get_river_vertex_colors(river_color: Color, null_color: Color, head_color: Color, mouth_color: Color) -> Dictionary:  # Dictionary[Vertex, Color]
 	var point_color_dict := {}
 	for point in _points:
 		point_color_dict[point] = get_color()
 		if point_color_dict[point] == null:
 			point_color_dict[point] = null_color
-	for edge in _edges:
-		if edge.has_river():
-			for point in edge.get_points():
-				point_color_dict[point] = river_color
+		if point.has_river():
+			point_color_dict[point] = river_color
+		if point.is_head():
+			point_color_dict[point] = head_color
+		if point.is_mouth():
+			point_color_dict[point] = mouth_color
 	return point_color_dict
 
 func get_edges() -> Array:  # Array[Edge]
@@ -106,3 +116,9 @@ func get_parent() -> Object:  # -> Region | null
 
 func get_neighbours() -> Array:  # -> Array[Triangle]
 	return _neighbours
+
+func is_surrounded_by_region(region: Object) -> bool:  # (region: Region)
+	for point in _points:
+		if not point.has_polygon_with_parent(region):
+			return false
+	return true

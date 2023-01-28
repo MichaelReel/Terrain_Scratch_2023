@@ -6,6 +6,10 @@ var _pos: Vector3
 var _connections: Array  # Array[Edge]
 var _triangles: Array  # Array[Triangles]
 var _height_set: bool = false
+var _river: Array  # Array[Edge]
+var _exit_for: Object = null  # Region | null
+var _is_head: bool = false
+var _is_mouth: bool = false
 
 func _init(x: float, z: float) -> void:
 	_pos = Vector3(x, 0.0, z)
@@ -63,6 +67,30 @@ func get_connected_points() -> Array:  # -> Array[Vertex]
 func get_triangles() -> Array:  # -> Array[Triangle]
 	return _triangles
 
+func set_river(river: Array) -> void:  # (river: Array[Edge])
+	_river = river
+
+func has_river() -> bool:
+	return true if _river else false
+
+func set_as_exit_point(lake: Object) -> void:  # (lake: Region | null)
+	_exit_for = lake
+
+func is_exit() -> bool:
+	return true if _exit_for else false
+
+func set_as_head() -> void:
+	_is_head = true
+
+func is_head() -> bool:
+	return _is_head
+
+func set_as_mouth() -> void:
+	_is_mouth = true
+
+func is_mouth() -> bool:
+	return _is_mouth
+
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	"""This will sort by Y desc, then X asc"""
 	if a._pos.y > b._pos.y:
@@ -70,3 +98,6 @@ static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	elif a._pos.y == b._pos.y and a._pos.x < b._pos.x:
 			return true
 	return false
+
+static func sort_height(a: Vertex, b: Vertex) -> bool:
+	return a.get_height() <= b.get_height()
