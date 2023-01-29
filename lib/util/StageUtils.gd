@@ -1,4 +1,4 @@
-class_name Utils
+class_name StageUtils
 extends Object
 	
 static func shuffle(rng: RandomNumberGenerator, target: Array) -> void:

@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://view/IslandMesh.tscn" type="PackedScene" id=1]
 [ext_resource path="res://camera/CameraControl.tscn" type="PackedScene" id=2]
 [ext_resource path="res://materials/water_surface.tres" type="Material" id=3]
+[ext_resource path="res://lib/util/debug_color_dict.tres" type="Resource" id=4]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 1000, 1000 )
@@ -10,6 +11,7 @@ size = Vector2( 1000, 1000 )
 [node name="Main" type="Spatial"]
 
 [node name="IslandMesh" parent="." instance=ExtResource( 1 )]
+debug_color_dict = ExtResource( 4 )
 
 [node name="FlyingCamera" parent="." instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 400, 200 )

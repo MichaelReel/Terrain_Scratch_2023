@@ -1,5 +1,5 @@
 class_name Region
-extends Utils
+extends StageUtils
 """A specific area that a grid cell can belong to"""
 
 var _parent  # Region | null
