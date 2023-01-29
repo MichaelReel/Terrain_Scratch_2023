@@ -30,7 +30,8 @@ func _setup_rivers():
 	for lake in _lake_stage.get_regions():
 		var outlet_point: Vertex = lake.get_exit_point()
 		if not outlet_point:
-			printerr("Lake didn't have an exit point, somehow ¯\\_(ツ)_/¯")
+			printerr("Lake didn't have an exit point, probably empty ¯\\_(ツ)_/¯")
+			continue
 		
 		var neighbour_points = outlet_point.get_connected_points()
 		neighbour_points.sort_custom(Vertex, "sort_height")

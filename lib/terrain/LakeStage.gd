@@ -18,6 +18,7 @@ func _to_string() -> String:
 func perform() -> void:
 	_setup_regions()
 	
+	# Fill up the parent region with lakes
 	var expansion_done := false
 	while not expansion_done:
 		var done = true
@@ -28,13 +29,24 @@ func perform() -> void:
 			expansion_done = true
 		continue
 	
+	# Shrink the surface area of each lake a little bit
 	_expand_margins()
 	
+	# Tidy up the lake edges and get the main perimeter
 	for region in _regions:
 		region.perform_shrink_smoothing()
 		var _lines: Array = region.get_perimeter_lines(false)
 	
+	# Get the inner and outer perimeters
 	_identify_perimeter_points()
+	
+	# Remove any "point-less" lakes
+	var empty_lakes: Array = []
+	for region in _regions:
+		if region.is_empty():
+			empty_lakes.append(region)
+	for region in empty_lakes:
+		_regions.erase(region)
 
 func lake_for_point(point: Vertex) -> Object:  # -> Region | null
 	for region in _regions:

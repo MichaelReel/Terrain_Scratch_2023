@@ -123,6 +123,9 @@ func get_cell_count() -> int:
 func set_water_height(perimeter_height: float) -> void:
 	_perimeter_height = perimeter_height
 
+func is_empty() -> bool:
+	return _cells.empty()
+
 func get_perimeter_lines(fill_in: bool = true) -> Array:  # -> Array[Vertex]
 	if _perimeter_outlined:
 		return _perimeter_lines
@@ -189,8 +192,31 @@ func perform_shrink_smoothing() -> void:
 	Triangles on the inner edges should be released anytime they are
 	surrounded by the parent region
 	"""
+	# Don't remove cells while we interate, remove later
+	var cells_for_removal: Array = []
+	# Record cells currently in the frontier we will want to re-assess
+	var reassess_cells: Array = []
+	
 	# For each inner edge triangle, check if it is "surrounded" by the parent
-	pass
+	for cell in _cells:
+		if cell.is_surrounded_by_region(_parent):
+			# record adjoining frontier triangles
+			for neighbour in cell.get_neighbours():
+				if neighbour in _region_front and not neighbour in reassess_cells:
+					reassess_cells.append(neighbour)
+			
+			# Move this cell back into the frontier, and into the parent region
+			cells_for_removal.append(cell)
+	
+	# Remove the cells we know need to go back to the frontier
+	for cell in cells_for_removal:
+		remove_triangle_as_cell(cell)
+		_region_front.append(cell)
+	
+	# Check if we need to remove any frontier cells
+	for border_cell in reassess_cells:
+		if border_cell.count_neighbours_with_parent(self) <= 0:
+			_region_front.erase(border_cell)
 
 func _find_inner_border_cells() -> Array:  # Array[Triangles]
 	"""Find the cells on the edge, but inside the notional perimeter"""

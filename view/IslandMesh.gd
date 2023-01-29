@@ -23,7 +23,7 @@ export (PoolColorArray) var lake_colors := PoolColorArray([
 	river_color, # Color8( 32,  32, 192, 255),
 	river_color, # Color8( 16,  16, 192, 255),
 ])
-export (bool) var stages_in_thread: bool = false
+export (bool) var stages_in_thread: bool = true
 
 
 var thread: Thread
