@@ -8,7 +8,6 @@ var _index_col: int
 var _edges: Array  # Array[Edge]
 var _neighbours: Array = []  # Array[Triangle]
 var _corner_neighbours: Array = []  # Array[Triangle]
-#var _opposing_corner_side_map: Dictionary  # Dictionary[Vertex, Edge]
 var _parent: Object = null
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
@@ -24,13 +23,6 @@ func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Ar
 		point.add_polygon(self)
 	for edge in _edges:
 		edge.set_border_of(self)
-		
-#	# Map each corner to the opposing side, this relies on point/edge order above
-#	_opposing_corner_side_map = {
-#		_points[0]: _edges[1],
-#		_points[1]: _edges[2],
-#		_points[2]: _edges[0],
-#	}
 
 func _to_string() -> String:
 	return "%d,%d: %s" % [_index_row, _index_col, _points]

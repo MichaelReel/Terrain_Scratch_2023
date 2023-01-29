@@ -49,3 +49,7 @@ func perform() -> void:
 		emit_signal("stage_complete", stage)
 	
 	emit_signal("all_stages_complete")
+
+
+func get_lakes() -> Array:  # Array[Region]
+	return _lake_stage.get_regions()

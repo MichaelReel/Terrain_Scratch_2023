@@ -7,7 +7,7 @@ export (int) var land_cell_limit: int = 4000
 export (Resource) var debug_color_dict: Resource
 export (int) var river_count: int = 30
 
-export (bool) var stages_in_thread: bool = false
+export (bool) var stages_in_thread: bool = true
 
 
 var thread: Thread
@@ -35,32 +35,27 @@ func _exit_tree():
 		thread.wait_to_finish()
 
 func _stage_thread() -> void:
-	var island_mesh: Mesh = _get_mesh_from_grid(high_level_terrain.grid)
+	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
 	high_level_terrain.perform()
 
 func _on_stage_complete(stage: Stage) -> void:
 	print(str(stage))
-	var island_mesh: Mesh = _get_mesh_from_grid(high_level_terrain.grid)
+	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
 
 func _on_all_stages_complete() -> void:
-	print("High Level Terrain stages complete")
-	var island_mesh: Mesh = _get_mesh_from_grid(high_level_terrain.grid)
+	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
+	_create_water_mesh_instances()
+	print("High Level Terrain stages complete")
 
-func _get_mesh_from_grid(grid: Grid) -> Mesh:
-	var surface_tool: SurfaceTool = SurfaceTool.new()
-	var island_mesh: Mesh = Mesh.new()
+func _create_water_mesh_instances() -> void:
+	# TODO: Consider how this can be separated from the land mesh in a nice way
+	var meshes = MeshUtils.get_water_body_meshes(high_level_terrain, debug_color_dict)
+	for water_mesh in meshes:
+		var mesh_instance: MeshInstance = MeshInstance.new()
+		# TODO: fix the material properties so colors, etc are visible
+		mesh_instance.mesh = water_mesh
+		add_child(mesh_instance)
 
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for row in grid.get_triangles():
-		for triangle in row:
-			var color_dict: Dictionary = triangle.get_river_vertex_colors(debug_color_dict.river_color, grid.get_color(), debug_color_dict.head_color, debug_color_dict.mouth_color)
-			for vertex in triangle.get_vertices():
-				surface_tool.add_color(color_dict[vertex])
-				surface_tool.add_vertex(vertex.get_vector())
-	surface_tool.generate_normals()
-	var _err = surface_tool.commit(island_mesh)
-	
-	return island_mesh

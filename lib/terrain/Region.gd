@@ -123,8 +123,14 @@ func get_cell_count() -> int:
 func set_water_height(perimeter_height: float) -> void:
 	_perimeter_height = perimeter_height
 
+func get_water_height() -> float:
+	return _perimeter_height
+
 func is_empty() -> bool:
 	return _cells.empty()
+
+func get_cells() -> Array:  # -> Array[Triangles]
+	return _cells
 
 func get_perimeter_lines(fill_in: bool = true) -> Array:  # -> Array[Vertex]
 	if _perimeter_outlined:

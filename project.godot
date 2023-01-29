@@ -45,6 +45,11 @@ _global_script_classes=[ {
 "path": "res://lib/terrain/LakeStage.gd"
 }, {
 "base": "Object",
+"class": "MeshUtils",
+"language": "GDScript",
+"path": "res://lib/util/MeshUtils.gd"
+}, {
+"base": "Object",
 "class": "Model",
 "language": "GDScript",
 "path": "res://lib/geometry/Model.gd"
@@ -92,6 +97,7 @@ _global_script_class_icons={
 "HighlevelTerrain": "",
 "IslandStage": "",
 "LakeStage": "",
+"MeshUtils": "",
 "Model": "",
 "Region": "",
 "RegionStage": "",

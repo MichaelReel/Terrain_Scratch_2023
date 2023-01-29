@@ -55,6 +55,9 @@ func add_polygon(triangle: Object) -> void:  # (triangle: Triangle)
 func get_vector() -> Vector3:
 	return _pos
 
+func get_vector_at_height(height: float) -> Vector3:
+	return Vector3(_pos.x, height, _pos.z)
+
 func get_connections() -> Array:  # -> Array[Edge]
 	return _connections
 
