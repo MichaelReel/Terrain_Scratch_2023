@@ -55,3 +55,6 @@ func perform() -> void:
 
 func get_lakes() -> Array:  # Array[Region]
 	return _lake_stage.get_regions()
+
+func get_rivers() -> Array:  # Array[EdgePath]
+	return _river_stage.get_rivers()

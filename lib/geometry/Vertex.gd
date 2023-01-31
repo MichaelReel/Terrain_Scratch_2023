@@ -62,6 +62,7 @@ func get_connections() -> Array:  # -> Array[Edge]
 	return _connections
 
 func get_connected_points() -> Array:  # -> Array[Vertex]
+	"""Returns a new array each time of the connected points"""
 	var connected_points := []
 	for con in _connections:
 		connected_points.append(con.other_point(self))

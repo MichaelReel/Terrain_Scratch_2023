@@ -6,7 +6,7 @@ static func get_land_mesh(high_level_terrain: HighlevelTerrain, debug_color_dict
 	var grid = high_level_terrain.grid
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var island_mesh: Mesh = Mesh.new()
-
+	
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for row in grid.get_triangles():
 		for triangle in row:
@@ -26,6 +26,12 @@ static func get_water_body_meshes(high_level_terrain: HighlevelTerrain) -> Array
 	for lake in high_level_terrain.get_lakes():
 		meshes.append(_get_water_body_mesh(lake))
 	meshes.append(_get_sea_level_mesh(high_level_terrain.grid))
+	return meshes
+
+static func get_river_surface_meshes(high_level_terrain: HighlevelTerrain) -> Array:  # -> Array[Mesh]
+	var meshes: Array = []
+	for river in high_level_terrain.get_rivers():
+		meshes.append(_get_river_surface_mesh(river))
 	return meshes
 
 static func _get_water_body_mesh(lake: Region) -> Mesh:
@@ -59,5 +65,18 @@ static func _get_sea_level_mesh(grid: Grid) -> Mesh:
 	var _err = surface_tool.commit(sea_mesh)
 	
 	return sea_mesh
-	
 
+static func _get_river_surface_mesh(river: EdgePath) -> Mesh:
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var river_mesh: Mesh = Mesh.new()
+	
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	for triangle in river.get_adjacent_triangles():
+		for vertex in triangle.get_vertices():
+			surface_tool.add_vertex(vertex.get_vector())
+	
+	surface_tool.generate_normals()
+	var _err = surface_tool.commit(river_mesh)
+	
+	return river_mesh

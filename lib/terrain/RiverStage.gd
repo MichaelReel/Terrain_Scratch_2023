@@ -25,6 +25,9 @@ func _to_string() -> String:
 func perform() -> void:
 	_setup_rivers()
 
+func get_rivers() -> Array:  # -> Array[EdgePath]
+	return _rivers
+
 func _setup_rivers():
 	_rivers = []
 	
