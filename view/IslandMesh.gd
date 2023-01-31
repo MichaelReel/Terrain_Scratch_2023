@@ -3,6 +3,8 @@ extends MeshInstance
 export (int) var random_seed: int = -6398989897141750821 + 3
 export (float) var edge_length: float = 10.0
 export (int) var edges_across: int = 100
+export (float) var diff_height: float = 2.0
+export (float) var erode_depth: float = 1.0
 export (int) var land_cell_limit: int = 4000
 export (Resource) var debug_color_dict: Resource
 export (int) var river_count: int = 30
@@ -18,6 +20,8 @@ func _ready() -> void:
 		random_seed,
 		edge_length,
 		edges_across,
+		diff_height,
+		erode_depth,
 		land_cell_limit,
 		river_count,
 		debug_color_dict

@@ -6,15 +6,17 @@ var _grid: Grid
 var _lake_stage: LakeStage
 var _river_count: int
 var _river_color: Color
+var _erode_depth: float
 var _rng := RandomNumberGenerator.new()
 
 func _init(
-	grid: Grid, lake_stage: LakeStage, river_count: int, river_color: Color, rng_seed: int
+	grid: Grid, lake_stage: LakeStage, river_count: int, river_color: Color, erode_depth: float, rng_seed: int
 ) -> void:
 	_grid = grid
 	_lake_stage = lake_stage
 	_river_count = river_count
 	_river_color = river_color
+	_erode_depth = erode_depth
 	_rng.seed = rng_seed
 
 func _to_string() -> String:
@@ -33,19 +35,8 @@ func _setup_rivers():
 			printerr("Lake didn't have an exit point, probably empty ¯\\_(ツ)_/¯")
 			continue
 		
-		var neighbour_points = outlet_point.get_connected_points()
-		neighbour_points.sort_custom(Vertex, "sort_height")
-		# Pick the first lowest point (not inside lake) only
-		for neighbour in neighbour_points:
-			if neighbour.has_polygon_with_parent(lake):
-				continue
-			
-			var river = create_river(outlet_point.get_connection_to_point(neighbour))
-			if not river.empty():
-				outlet_point.set_as_head()
-				_rivers.append(river)
-			
-			break
+		var river = create_river(outlet_point)
+		_rivers.append(river)
 	
 	# Include some random points that are not in a lake or river already
 	var island_points = _grid.get_island_points()
@@ -56,34 +47,35 @@ func _setup_rivers():
 		island_points.resize(_river_count)
 	
 	for island_point in island_points:
-		var neighbour_points = island_point.get_connected_points()
-		neighbour_points.sort_custom(Vertex, "sort_height")
-		
-		for neighbour in neighbour_points:
-			var river = create_river(island_point.get_connection_to_point(neighbour))
-			if not river.empty():
-				island_point.set_as_head()
-				_rivers.append(river)
-			
-			break
-
-func create_river(start_edge: Edge) -> Array:
-	"""Create a chain of edges that represent a river"""
-	if not start_edge:
-		return []
+		var river = create_river(island_point)
+		_rivers.append(river)
 	
-	var river: Array = []
+	for river in _rivers:
+		river.erode(_erode_depth)
+
+func create_river(start_point: Vertex) -> Object:  # -> EdgePath | null
+	"""Create a chain of edges that represent a river"""
+	start_point.set_as_head()
+	var river: EdgePath = EdgePath.new(start_point)
+	
+	var neighbour_points: Array = start_point.get_connected_points()
+	neighbour_points.sort_custom(Vertex, "sort_height")
+	var connection_point = neighbour_points.pop_front()
+	
+	# The exit shouldn't be inside the lake, assuming anyway
+	if start_point.is_exit():
+		while connection_point.has_polygon_with_parent(start_point.get_exit_for()):
+			connection_point = neighbour_points.pop_front()
+	
 	# Get the downhill end, then extend until we hit the coast or a lake
-	var next_edge: Edge = start_edge
-	var connection_point: Vertex = next_edge.lowest_end_point()
+	var next_edge: Edge = start_point.get_connection_to_point(connection_point)
 	while (
 		not _lake_stage.point_in_water_body(connection_point)
 		and not next_edge.has_river()
 	):
-		river.append(next_edge)
-		next_edge.set_river(river)
+		river.extend_by_edge(next_edge)
 		# Find the next lowest connected point
-		var neighbour_points = connection_point.get_connected_points()
+		neighbour_points = connection_point.get_connected_points()
 		neighbour_points.sort_custom(Vertex, "sort_height")
 		var lowest_neighbour = neighbour_points.front()
 		next_edge = connection_point.get_connection_to_point(lowest_neighbour)
@@ -91,7 +83,7 @@ func create_river(start_edge: Edge) -> Array:
 	
 	# Add the last step, unless it's already a river
 	if not next_edge.has_river():
-		river.append(next_edge)
-		next_edge.set_river(river)
+		river.extend_by_edge(next_edge)
 		connection_point.set_as_mouth()
+	
 	return river

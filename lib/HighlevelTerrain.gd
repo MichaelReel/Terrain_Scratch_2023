@@ -21,6 +21,8 @@ func _init(
 	random_seed: int,
 	edge_length: float,
 	edges_across: int,
+	diff_height: float,
+	erode_depth: float,
 	land_cell_limit: int,
 	river_count: int,
 	debug_color_map: DebugColorDict
@@ -31,8 +33,8 @@ func _init(
 	_island_stage = IslandStage.new(grid,  debug_color_map.land_color, land_cell_limit, rng.randi())
 	_regions_stage = RegionStage.new(_island_stage.get_region(), debug_color_map.region_colors, rng.randi())
 	_lake_stage = LakeStage.new(_regions_stage, debug_color_map.lake_colors, rng.randi())
-	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage)
-	_river_stage = RiverStage.new(grid, _lake_stage, river_count, debug_color_map.river_color, rng.randi())
+	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage, diff_height)
+	_river_stage = RiverStage.new(grid, _lake_stage, river_count, debug_color_map.river_color, erode_depth, rng.randi())
 
 
 func perform() -> void:

@@ -5,7 +5,7 @@ extends Model
 var _a: Vertex
 var _b: Vertex
 var _borders: Array  # Array[Triangle]
-var _river: Array  # Array[Edge]
+var _river: Object  # EdgePath | null
 
 func _init(a: Vertex, b: Vertex) -> void:
 	if Vertex.sort_vert_inv_hortz(a, b):
@@ -50,7 +50,7 @@ func set_border_of(triangle) -> void:  # (triangle: Triangle)
 func lowest_end_point() -> Vertex:
 	return _a if _a.get_height() < _b.get_height() else _b
 
-func set_river(river: Array) -> void:  # (river: Array[Edge])
+func set_river(river: Object) -> void:  # (river: EdgePath | null)
 	_river = river
 	_a.set_river(river)
 	_b.set_river(river)

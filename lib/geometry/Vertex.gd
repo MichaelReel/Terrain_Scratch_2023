@@ -6,7 +6,7 @@ var _pos: Vector3
 var _connections: Array  # Array[Edge]
 var _triangles: Array  # Array[Triangles]
 var _height_set: bool = false
-var _river: Array  # Array[Edge]
+var _river: Object  # EdgePath | null
 var _exit_for: Object = null  # Region | null
 var _is_head: bool = false
 var _is_mouth: bool = false
@@ -70,7 +70,7 @@ func get_connected_points() -> Array:  # -> Array[Vertex]
 func get_triangles() -> Array:  # -> Array[Triangle]
 	return _triangles
 
-func set_river(river: Array) -> void:  # (river: Array[Edge])
+func set_river(river: Object) -> void:  # (river: EdgePath | null)
 	_river = river
 
 func has_river() -> bool:
@@ -81,6 +81,9 @@ func set_as_exit_point(lake: Object) -> void:  # (lake: Region | null)
 
 func is_exit() -> bool:
 	return true if _exit_for else false
+
+func get_exit_for() -> Object:  # Region | null
+	return _exit_for
 
 func set_as_head() -> void:
 	_is_head = true
@@ -93,6 +96,9 @@ func set_as_mouth() -> void:
 
 func is_mouth() -> bool:
 	return _is_mouth
+
+func erode(erode_depth: float) -> void:
+	_pos.y -= erode_depth
 
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	"""This will sort by Y desc, then X asc"""

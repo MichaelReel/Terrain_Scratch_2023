@@ -3,21 +3,24 @@ extends Stage
 
 var _island: Region
 var _lake_stage: LakeStage
-var _diff_height: float = 2.0
+var _diff_height: float
 var _sealevel_points: Array = []  # Array[Vertex]
 var _downhill_front: Array = []  # Array[Vertex]
-var _downhill_height: float = -_diff_height
+var _downhill_height: float
 var _uphill_front: Array = []  # Array[Vertex]
-var _uphill_height: float = _diff_height
+var _uphill_height: float
 var _sealevel_started: bool = false
 var _height_fronts_started: bool = false
 var _downhill_complete: bool = false
 var _uphill_complete: bool = false
 
-func _init(island: Region, lake_stage: LakeStage) -> void:
+func _init(island: Region, lake_stage: LakeStage, diff_height: float) -> void:
 	_island = island
 	_lake_stage = lake_stage
-
+	_diff_height = diff_height
+	_downhill_height = -_diff_height
+	_uphill_height = _diff_height
+	
 func _to_string() -> String:
 	return "Height Stage"
 
