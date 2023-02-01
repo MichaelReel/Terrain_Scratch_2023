@@ -59,7 +59,7 @@ func _setup_rivers():
 func create_river(start_point: Vertex) -> Object:  # -> EdgePath | null
 	"""Create a chain of edges that represent a river"""
 	start_point.set_as_head()
-	var river: EdgePath = EdgePath.new(start_point)
+	var river: EdgePath = EdgePath.new(start_point, _lake_stage)
 	
 	var neighbour_points: Array = start_point.get_connected_points()
 	neighbour_points.sort_custom(Vertex, "sort_height")

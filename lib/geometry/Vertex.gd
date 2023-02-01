@@ -10,6 +10,7 @@ var _river: Object  # EdgePath | null
 var _exit_for: Object = null  # Region | null
 var _is_head: bool = false
 var _is_mouth: bool = false
+var _eroded_depth: float = 0.0
 
 func _init(x: float, z: float) -> void:
 	_pos = Vector3(x, 0.0, z)
@@ -58,6 +59,9 @@ func get_vector() -> Vector3:
 func get_vector_at_height(height: float) -> Vector3:
 	return Vector3(_pos.x, height, _pos.z)
 
+func get_uneroded_vector() -> Vector3:
+	return get_vector_at_height(_pos.y + _eroded_depth)
+
 func get_connections() -> Array:  # -> Array[Edge]
 	return _connections
 
@@ -99,6 +103,7 @@ func is_mouth() -> bool:
 	return _is_mouth
 
 func erode(erode_depth: float) -> void:
+	_eroded_depth += erode_depth
 	_pos.y -= erode_depth
 
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:

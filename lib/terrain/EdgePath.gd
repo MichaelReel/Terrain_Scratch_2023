@@ -5,11 +5,14 @@ extends Object
 var _edge_array: Array = []  # Array[Edge]
 var _point_array: Array = []  # Array[Vertex]
 var _adjacent_triangles: Array = []  # Array[Triangle]
+var _lake_stage: LakeStage
 var _eroded_depth: float = 0.0
 
 
-func _init(starting_point: Vertex) -> void:
+func _init(starting_point: Vertex, lake_stage: LakeStage) -> void:
 	_point_array.append(starting_point)
+	_lake_stage = lake_stage
+	_update_adjacent_triangles()
 
 func _to_string() -> String:
 	return str(_point_array)
@@ -46,12 +49,12 @@ func get_adjacent_triangles() -> Array:  # -> Array[Triangle]
 	return _adjacent_triangles
 
 func _update_adjacent_triangles() -> void:
-	var new_edge = _edge_array.back()
-#	var new_point = _point_array.back()
+	var new_point = _point_array.back()
 
-	for triangle in new_edge.get_bordering_triangles():
-		if not triangle in _adjacent_triangles:
-			_adjacent_triangles.append(triangle)
-	
-	
+	for triangle in new_point.get_triangles():
+		if triangle in _adjacent_triangles:
+			continue
+		if _lake_stage.triangle_in_water_body(triangle):
+			continue
+		_adjacent_triangles.append(triangle)
 	

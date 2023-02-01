@@ -62,6 +62,12 @@ func point_in_water_body(point: Vertex) -> bool:
 		return true
 	return false
 
+func triangle_in_water_body(triangle: Triangle) -> bool:
+	for vertex in triangle.get_vertices():
+		if not point_in_water_body(vertex):
+			return false
+	return true
+
 func filter_points_no_lake(points: Array) -> Array:  # (points: Array[Vertex]) -> Array[Vertex]
 	var filtered_points: Array = []
 	for point in points:

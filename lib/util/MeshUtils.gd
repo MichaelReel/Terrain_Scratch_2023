@@ -74,7 +74,7 @@ static func _get_river_surface_mesh(river: EdgePath) -> Mesh:
 	
 	for triangle in river.get_adjacent_triangles():
 		for vertex in triangle.get_vertices():
-			surface_tool.add_vertex(vertex.get_vector())
+			surface_tool.add_vertex(vertex.get_uneroded_vector())
 	
 	surface_tool.generate_normals()
 	var _err = surface_tool.commit(river_mesh)
