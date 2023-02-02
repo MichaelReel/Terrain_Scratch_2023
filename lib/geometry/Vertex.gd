@@ -106,6 +106,9 @@ func erode(erode_depth: float) -> void:
 	_eroded_depth += erode_depth
 	_pos.y -= erode_depth
 
+func get_erosion() -> float:
+	return _eroded_depth
+
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	"""This will sort by Y desc, then X asc"""
 	if a._pos.y > b._pos.y:

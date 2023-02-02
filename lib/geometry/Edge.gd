@@ -57,3 +57,6 @@ func set_river(river: Object) -> void:  # (river: EdgePath | null)
 
 func has_river() -> bool:
 	return true if _river else false
+
+func get_center() -> Vector3:
+	return lerp(_a.get_vector(), _b.get_vector(), 0.5)
