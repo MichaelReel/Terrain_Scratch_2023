@@ -114,3 +114,6 @@ func is_surrounded_by_region(region: Object) -> bool:  # (region: Region)
 		if not point.has_polygon_with_parent(region):
 			return false
 	return true
+
+func get_center() -> Vector3:
+	return (_points[0].get_vector() + _points[1].get_vector() + _points[2].get_vector()) / 3.0

@@ -4,10 +4,12 @@ export (int) var random_seed: int = -6398989897141750821 + 3
 export (float) var edge_length: float = 10.0
 export (int) var edges_across: int = 100
 export (float) var diff_height: float = 2.0
+export (int) var diff_max_multi: int = 3
 export (float) var erode_depth: float = 1.0
 export (int) var land_cell_limit: int = 4000
 export (Resource) var debug_color_dict: Resource
 export (int) var river_count: int = 30
+export (float) var pin_speed: float = 10.0
 
 export (bool) var stages_in_thread: bool = true
 
@@ -15,6 +17,8 @@ var thread: Thread
 var high_level_terrain: HighlevelTerrain
 
 onready var _water_material := preload("res://materials/water_surface.tres")
+onready var _surface_pin := $SurfacePin
+onready var _surface_cursor_mesh := $CursorMesh
 
 func _ready() -> void:
 	high_level_terrain = HighlevelTerrain.new(
@@ -22,6 +26,7 @@ func _ready() -> void:
 		edge_length,
 		edges_across,
 		diff_height,
+		diff_max_multi,
 		erode_depth,
 		land_cell_limit,
 		river_count,
@@ -35,6 +40,25 @@ func _ready() -> void:
 	else:
 		_stage_thread()
 
+func _physics_process(delta : float):
+	# Move pin around the grid
+	if Input.is_action_pressed("pin_move_north"):
+		_surface_pin.translation.z -= delta * pin_speed
+	if Input.is_action_pressed("pin_move_south"):
+		_surface_pin.translation.z += delta * pin_speed
+	if Input.is_action_pressed("pin_move_west"):
+		_surface_pin.translation.x -= delta * pin_speed
+	if Input.is_action_pressed("pin_move_east"):
+		_surface_pin.translation.x += delta * pin_speed
+	
+	_surface_pin.translation.y = high_level_terrain.grid.get_height_at_xz(
+		_surface_pin.translation.x, _surface_pin.translation.z
+	)
+	
+	var triangle = high_level_terrain.grid.get_triangle_at(_surface_pin.translation.x, _surface_pin.translation.z)
+	_surface_cursor_mesh.set_mesh(MeshUtils.get_cursor_mesh(triangle))
+
+
 func _exit_tree():
 	if stages_in_thread:
 		thread.wait_to_finish()
@@ -43,6 +67,9 @@ func _stage_thread() -> void:
 	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
 	high_level_terrain.perform()
+	_surface_pin.translation.y = high_level_terrain.grid.get_height_at_xz(
+		_surface_pin.translation.x, _surface_pin.translation.z
+	)
 
 func _on_stage_complete(stage: Stage) -> void:
 	print(str(stage))

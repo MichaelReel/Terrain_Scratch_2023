@@ -22,6 +22,7 @@ func _init(
 	edge_length: float,
 	edges_across: int,
 	diff_height: float,
+	diff_max_multi: int,
 	erode_depth: float,
 	land_cell_limit: int,
 	river_count: int,
@@ -33,7 +34,7 @@ func _init(
 	_island_stage = IslandStage.new(grid,  debug_color_map.land_color, land_cell_limit, rng.randi())
 	_regions_stage = RegionStage.new(_island_stage.get_region(), debug_color_map.region_colors, rng.randi())
 	_lake_stage = LakeStage.new(_regions_stage, debug_color_map.lake_colors, rng.randi())
-	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage, diff_height)
+	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage, diff_height, diff_max_multi, rng.randi())
 	_river_stage = RiverStage.new(grid, _lake_stage, river_count, debug_color_map.river_color, erode_depth, rng.randi())
 
 

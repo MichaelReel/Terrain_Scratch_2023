@@ -4,6 +4,7 @@ extends Stage
 var _island: Region
 var _lake_stage: LakeStage
 var _diff_height: float
+var _diff_height_max_multiplier: int
 var _sealevel_points: Array = []  # Array[Vertex]
 var _downhill_front: Array = []  # Array[Vertex]
 var _downhill_height: float
@@ -13,13 +14,16 @@ var _sealevel_started: bool = false
 var _height_fronts_started: bool = false
 var _downhill_complete: bool = false
 var _uphill_complete: bool = false
+var _rng: RandomNumberGenerator = RandomNumberGenerator.new()
 
-func _init(island: Region, lake_stage: LakeStage, diff_height: float) -> void:
+func _init(island: Region, lake_stage: LakeStage, diff_height: float, diff_max_multi: int, rng_seed: int) -> void:
 	_island = island
 	_lake_stage = lake_stage
 	_diff_height = diff_height
+	_diff_height_max_multiplier = diff_max_multi
 	_downhill_height = -_diff_height
 	_uphill_height = _diff_height
+	_rng.seed = rng_seed
 	
 func _to_string() -> String:
 	return "Height Stage"
@@ -69,7 +73,7 @@ func _setup_height_fronts() -> void:
 					_downhill_front.append(point)
 
 func _step_downhill() -> void:
-	_downhill_height -= _diff_height
+	_downhill_height -= _diff_height * (_rng.randi() % _diff_height_max_multiplier + 1) 
 	var new_downhill_front: Array = []
 	for center_point in _downhill_front:
 		for point in center_point.get_connected_points():
@@ -79,7 +83,7 @@ func _step_downhill() -> void:
 	_downhill_front = new_downhill_front
 
 func _step_uphill() -> void:
-	_uphill_height += _diff_height
+	_uphill_height += _diff_height * (_rng.randi() % _diff_height_max_multiplier + 1) 
 	var new_uphill_front: Array = []
 	for center_point in _uphill_front:
 		for point in center_point.get_connected_points():
@@ -97,7 +101,7 @@ func _step_uphill() -> void:
 					var inside_points : Array = lake.get_inner_perimeter_points()
 					if not inside_points.empty():
 						# Reset the downhill state, and set the downhill height
-						_downhill_height = _uphill_height - _diff_height
+						_downhill_height = _uphill_height - _diff_height * (_rng.randi() % _diff_height_max_multiplier + 1) 
 						_downhill_front.append_array(inside_points)
 						_downhill_complete = false
 

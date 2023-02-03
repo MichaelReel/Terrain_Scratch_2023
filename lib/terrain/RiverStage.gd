@@ -51,7 +51,9 @@ func _setup_rivers():
 	
 	for island_point in island_points:
 		var river = create_river(island_point)
-		_rivers.append(river)
+		# Filter out any silly short rivers
+		if river.edge_length() > 1:
+			_rivers.append(river)
 	
 	for river in _rivers:
 		river.erode(_erode_depth)

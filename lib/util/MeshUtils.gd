@@ -1,6 +1,15 @@
 class_name MeshUtils
 extends Object
 
+static func get_cursor_mesh(triangle: Triangle) -> Mesh:
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var triangle_mesh: Mesh = Mesh.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for vertex in triangle.get_vertices():
+		surface_tool.add_vertex(vertex.get_vector() + Vector3.UP)
+	surface_tool.generate_normals()
+	var _err = surface_tool.commit(triangle_mesh)
+	return triangle_mesh
 
 static func get_land_mesh(high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict) -> Mesh:
 	var grid = high_level_terrain.grid
@@ -67,7 +76,7 @@ static func _get_sea_level_mesh(grid: Grid) -> Mesh:
 	return sea_mesh
 
 static func _get_river_surface_mesh(river: EdgePath, lake_stage: LakeStage) -> Mesh:
-	var ratio = 0.5
+	var ratio = 0.75
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var river_mesh: Mesh = Mesh.new()
 	var drop_depth = Vector3.DOWN * river.get_eroded_depth() * ratio
