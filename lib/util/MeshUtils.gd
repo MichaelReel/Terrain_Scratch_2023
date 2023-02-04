@@ -2,13 +2,14 @@ class_name MeshUtils
 extends Object
 
 static func get_cursor_mesh(triangle: Triangle) -> Mesh:
-	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var triangle_mesh: Mesh = Mesh.new()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for vertex in triangle.get_vertices():
-		surface_tool.add_vertex(vertex.get_vector() + Vector3.UP)
-	surface_tool.generate_normals()
-	var _err = surface_tool.commit(triangle_mesh)
+	if triangle:
+		var surface_tool: SurfaceTool = SurfaceTool.new()
+		surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for vertex in triangle.get_vertices():
+			surface_tool.add_vertex(vertex.get_vector() + Vector3.UP * 0.1)
+		surface_tool.generate_normals()
+		var _err = surface_tool.commit(triangle_mesh)
 	return triangle_mesh
 
 static func get_land_mesh(high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict) -> Mesh:

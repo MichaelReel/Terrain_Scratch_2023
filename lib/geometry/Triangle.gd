@@ -117,3 +117,16 @@ func is_surrounded_by_region(region: Object) -> bool:  # (region: Region)
 
 func get_center() -> Vector3:
 	return (_points[0].get_vector() + _points[1].get_vector() + _points[2].get_vector()) / 3.0
+
+func get_normal() -> Vector3:
+	return (_points[1].get_vector() - _points[0].get_vector()).cross(_points[1].get_vector() - _points[2].get_vector())
+
+func get_height_in_plane(x: float, z: float) -> float:
+	var normal: Vector3 = get_normal()
+	var position: Vector3 = _points[1].get_vector()
+	# nx(x - px) + ny(y - py) + nz(z - pz) = 0
+	# ny(y - py) = -(nz(z-pz)+nx(x-px))
+	# y - py = -(nz(z-pz)+nx(x-px)) / ny
+	# y = py-(nz(z-pz)+nx(x-px))/ny
+	return position.y - (normal.z * (z - position.z) + normal.x * (x - position.x)) / normal.y
+	

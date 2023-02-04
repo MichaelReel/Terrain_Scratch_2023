@@ -91,7 +91,7 @@ func get_height_at_xz(x: float, z: float) -> float:
 	# Find triangle we're in
 	var triangle = get_triangle_at(x, z)
 	if triangle:
-		return triangle.get_center().y
+		return triangle.get_height_in_plane(x, z)
 
 	return 0.0
 

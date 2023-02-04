@@ -15,6 +15,7 @@ export (bool) var stages_in_thread: bool = true
 
 var thread: Thread
 var high_level_terrain: HighlevelTerrain
+var last_cursor_triangle: Triangle
 
 onready var _water_material := preload("res://materials/water_surface.tres")
 onready var _surface_pin := $SurfacePin
@@ -56,8 +57,9 @@ func _physics_process(delta : float):
 	)
 	
 	var triangle = high_level_terrain.grid.get_triangle_at(_surface_pin.translation.x, _surface_pin.translation.z)
-	_surface_cursor_mesh.set_mesh(MeshUtils.get_cursor_mesh(triangle))
-
+	if not last_cursor_triangle == triangle:
+		last_cursor_triangle = triangle
+		_surface_cursor_mesh.set_mesh(MeshUtils.get_cursor_mesh(triangle))
 
 func _exit_tree():
 	if stages_in_thread:
