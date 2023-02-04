@@ -20,9 +20,7 @@ static func get_land_mesh(high_level_terrain: HighlevelTerrain, debug_color_dict
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for row in grid.get_triangles():
 		for triangle in row:
-			var color_dict: Dictionary = triangle.get_river_vertex_colors(
-				debug_color_dict.river_color, debug_color_dict.base_color, debug_color_dict.head_color, debug_color_dict.mouth_color
-			)
+			var color_dict: Dictionary = triangle.get_river_vertex_colors(debug_color_dict)
 			for vertex in triangle.get_vertices():
 				surface_tool.add_color(color_dict[vertex])
 				surface_tool.add_vertex(vertex.get_vector())

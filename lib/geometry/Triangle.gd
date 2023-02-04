@@ -9,6 +9,7 @@ var _edges: Array  # Array[Edge]
 var _neighbours: Array = []  # Array[Triangle]
 var _corner_neighbours: Array = []  # Array[Triangle]
 var _parent: Object = null
+var _is_potential_settlement: bool = false
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
 	_points = points
@@ -86,8 +87,19 @@ func get_color():  # -> Color | null:
 func get_vertices() -> Array:  # Array[Vertex]
 	return _points
 
-func get_river_vertex_colors(river_color: Color, null_color: Color, head_color: Color, mouth_color: Color) -> Dictionary:  # Dictionary[Vertex, Color]
+func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  # Dictionary[Vertex, Color]
+	var river_color = debug_color_dict.river_color
+	var null_color = debug_color_dict.base_color
+	var head_color = debug_color_dict.head_color
+	var mouth_color = debug_color_dict.mouth_color
+	var settlement_color = debug_color_dict.settlement_color
 	var point_color_dict := {}
+	
+	if _is_potential_settlement:
+		for point in _points:
+			point_color_dict[point] = settlement_color
+		return point_color_dict
+		
 	for point in _points:
 		point_color_dict[point] = get_color()
 		if point_color_dict[point] == null:
@@ -130,3 +142,11 @@ func get_height_in_plane(x: float, z: float) -> float:
 	# y = py-(nz(z-pz)+nx(x-px))/ny
 	return position.y - (normal.z * (z - position.z) + normal.x * (x - position.x)) / normal.y
 	
+func is_flat() -> bool:
+	return (
+		_points[0].get_height() == _points[1].get_height() 
+		and _points[0].get_height() == _points[2].get_height()
+	)
+
+func set_potential_settlement() -> void:
+	_is_potential_settlement = true

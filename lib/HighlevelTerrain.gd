@@ -16,6 +16,7 @@ var _regions_stage: RegionStage
 var _lake_stage: LakeStage
 var _height_stage: HeightStage
 var _river_stage: RiverStage
+var _civil_stage: CivilStage
 
 func _init(
 	random_seed: int,
@@ -36,6 +37,7 @@ func _init(
 	_lake_stage = LakeStage.new(_regions_stage, debug_color_map.lake_colors, rng.randi())
 	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage, diff_height, diff_max_multi, rng.randi())
 	_river_stage = RiverStage.new(grid, _lake_stage, river_count, debug_color_map.river_color, erode_depth, rng.randi())
+	_civil_stage = CivilStage.new(grid, _lake_stage)
 
 
 func perform() -> void:
@@ -45,6 +47,7 @@ func perform() -> void:
 		_lake_stage,
 		_height_stage,
 		_river_stage,
+		_civil_stage,
 	]
 	
 	for stage in stages:
