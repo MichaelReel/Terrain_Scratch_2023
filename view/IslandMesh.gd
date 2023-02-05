@@ -52,6 +52,9 @@ func _physics_process(delta : float):
 	if Input.is_action_pressed("pin_move_east"):
 		_surface_pin.translation.x += delta * pin_speed
 	
+	_update_pin_cursor_display()
+
+func _update_pin_cursor_display() -> void:
 	_surface_pin.translation.y = high_level_terrain.grid.get_height_at_xz(
 		_surface_pin.translation.x, _surface_pin.translation.z
 	)
@@ -69,9 +72,8 @@ func _stage_thread() -> void:
 	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
 	high_level_terrain.perform()
-	_surface_pin.translation.y = high_level_terrain.grid.get_height_at_xz(
-		_surface_pin.translation.x, _surface_pin.translation.z
-	)
+	
+	_update_pin_cursor_display()
 
 func _on_stage_complete(stage: Stage) -> void:
 	print(str(stage))

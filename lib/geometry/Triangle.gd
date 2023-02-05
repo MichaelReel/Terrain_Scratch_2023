@@ -10,6 +10,7 @@ var _neighbours: Array = []  # Array[Triangle]
 var _corner_neighbours: Array = []  # Array[Triangle]
 var _parent: Object = null
 var _is_potential_settlement: bool = false
+var _contains_road: bool = false
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
 	_points = points
@@ -88,16 +89,23 @@ func get_vertices() -> Array:  # Array[Vertex]
 	return _points
 
 func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  # Dictionary[Vertex, Color]
+	"""This is just for creating the development and debug meshes"""
 	var river_color = debug_color_dict.river_color
 	var null_color = debug_color_dict.base_color
 	var head_color = debug_color_dict.head_color
 	var mouth_color = debug_color_dict.mouth_color
 	var settlement_color = debug_color_dict.settlement_color
+	var road_color = debug_color_dict.road_color
 	var point_color_dict := {}
 	
 	if _is_potential_settlement:
 		for point in _points:
 			point_color_dict[point] = settlement_color
+		return point_color_dict
+	
+	if _contains_road:
+		for point in _points:
+			point_color_dict[point] = road_color
 		return point_color_dict
 		
 	for point in _points:
@@ -150,3 +158,6 @@ func is_flat() -> bool:
 
 func set_potential_settlement() -> void:
 	_is_potential_settlement = true
+
+func set_contains_road() -> void:
+	_contains_road = true

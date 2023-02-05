@@ -20,3 +20,4 @@ export (PoolColorArray) var lake_colors := PoolColorArray([
 	river_color, # Color8( 16,  16, 192, 255),
 ])
 export (Color) var settlement_color: Color = Color8(64, 64, 64, 255)
+export (Color) var road_color: Color = Color8(48, 80, 48, 255)

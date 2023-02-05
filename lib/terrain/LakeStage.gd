@@ -63,10 +63,12 @@ func point_in_water_body(point: Vertex) -> bool:
 	return false
 
 func triangle_in_water_body(triangle: Triangle) -> bool:
-	for vertex in triangle.get_vertices():
-		if not point_in_water_body(vertex):
-			return false
-	return true
+	"""The triangle has null (sea) or lake as a parent"""
+	var parent = triangle.get_parent()
+	return parent == null or parent in _regions
+
+func triangle_beside_water_body(triangle: Triangle) -> bool:
+	return _points_in_water_bodies(triangle) >= 2
 
 func filter_points_no_lake(points: Array) -> Array:  # (points: Array[Vertex]) -> Array[Vertex]
 	var filtered_points: Array = []
@@ -74,6 +76,13 @@ func filter_points_no_lake(points: Array) -> Array:  # (points: Array[Vertex]) -
 		if not _point_has_lake(point):
 			filtered_points.append(point)
 	return filtered_points
+
+func _points_in_water_bodies(triangle: Triangle) -> int:
+	var water_points = 0
+	for vertex in triangle.get_vertices():
+		if point_in_water_body(vertex):
+			water_points += 1
+	return water_points
 
 func _expand_margins() -> void:
 	for region in _regions:
