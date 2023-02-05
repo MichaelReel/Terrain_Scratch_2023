@@ -9,6 +9,8 @@ export (float) var erode_depth: float = 1.0
 export (int) var land_cell_limit: int = 4000
 export (Resource) var debug_color_dict: Resource
 export (int) var river_count: int = 30
+export (float) var road_slope_penalty: float = 1.5
+export (float) var road_river_crossing_penalty: float = 4.0
 export (float) var pin_speed: float = 10.0
 
 export (bool) var stages_in_thread: bool = true
@@ -31,6 +33,8 @@ func _ready() -> void:
 		erode_depth,
 		land_cell_limit,
 		river_count,
+		road_slope_penalty,
+		road_river_crossing_penalty,
 		debug_color_dict
 	)
 	var _err1 = high_level_terrain.connect("all_stages_complete", self, "_on_all_stages_complete")

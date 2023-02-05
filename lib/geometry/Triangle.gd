@@ -123,6 +123,12 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 func get_edges() -> Array:  # Array[Edge]
 	return _edges
 
+func get_shared_edge(triangle: Triangle) -> Object:  # -> Edge | null
+	for edge in _edges:
+		if edge.other_triangle(self) == triangle:
+			return edge
+	return null
+
 func get_parent() -> Object:  # -> Region | null
 	return _parent
 

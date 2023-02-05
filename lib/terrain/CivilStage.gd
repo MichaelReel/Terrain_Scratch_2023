@@ -5,10 +5,16 @@ var _grid: Grid
 var _lake_stage: LakeStage
 var _settlement_cells: Array = []  # Array[SearchCell]
 var _road_paths: Array = []  # Array[Array[Triangle]]
+var _slope_penalty: float
+var _river_penalty: float
 
-func _init(grid: Grid, lake_stage: LakeStage):
+const _NORMAL_COST: float = 1.0
+
+func _init(grid: Grid, lake_stage: LakeStage, slope_penalty: float, river_penalty: float):
 	_grid = grid
 	_lake_stage = lake_stage
+	_slope_penalty = slope_penalty
+	_river_penalty = river_penalty
 
 func _to_string() -> String:
 	return "Civil Stage"
@@ -73,8 +79,18 @@ func _get_cell_cost_survey_from(start_settlement: Triangle) -> Dictionary:  # ->
 		for neighbour_tri in search_cell.get_triangle().get_neighbours():
 			if _lake_stage.triangle_in_water_body(neighbour_tri):
 				continue
-			var journey_cost: float = search_cell.get_cost() + 1.0
-			# TODO: Up the cost if crossing a river, or going up/downz   a steep slope
+			var journey_cost: float = search_cell.get_cost() 
+			# Up the cost for each new step
+			journey_cost += _NORMAL_COST
+			# Up the cost if crossing a river
+			var shared_edge = search_cell.get_triangle().get_shared_edge(neighbour_tri)
+			if shared_edge.has_river():
+				journey_cost += _river_penalty
+			
+			# Up the cost a little if going up/down a slope
+			journey_cost += abs(
+				neighbour_tri.get_center().y - search_cell.get_triangle().get_center().y
+			) * _slope_penalty
 			
 			# Check if there's an exising cell, if so, update it if cost is cheaper
 			if neighbour_tri in search_cell_dictionary.keys():
@@ -85,8 +101,13 @@ func _get_cell_cost_survey_from(start_settlement: Triangle) -> Dictionary:  # ->
 			
 			# Push a new search cell into the queue
 			var new_search_cell = SearchCell.new(neighbour_tri, journey_cost, search_cell)
-			# TODO: Insert into the list sorted by journey cost
-			search_queue.push_back(new_search_cell)
 			search_cell_dictionary[neighbour_tri] = new_search_cell
+			
+			# Insert into the list sorted by journey cost
+			var ind = search_queue.bsearch_custom(new_search_cell, self, "_sort_by_cost")
+			search_queue.insert(ind, new_search_cell)
 	
 	return search_cell_dictionary
+
+static func _sort_by_cost(a: SearchCell, b: SearchCell) -> bool:
+	return a.get_cost() < b.get_cost()

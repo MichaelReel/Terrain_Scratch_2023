@@ -10,6 +10,10 @@ func _init(triangle: Triangle, cost: float, path: Object = null) -> void:  # (pa
 	_cost_to_nearest = cost
 	_path_to_nearest = path
 
+func update_path(cost: float, path: SearchCell) -> void:
+	_cost_to_nearest = cost
+	_path_to_nearest = path
+
 func get_triangle() -> Triangle:
 	return _triangle
 

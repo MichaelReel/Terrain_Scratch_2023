@@ -30,6 +30,14 @@ func other_point(this: Vertex) -> Vertex:
 		return _b
 	return _a
 
+func other_triangle(this: Object) -> Object:  # (this: Triangle) -> Triangle | null
+	if len(_borders) == 2:
+		if _borders[0] == this:
+			return _borders[1]
+		elif _borders[1] == this:
+			return _borders[0]
+	return null
+
 func shared_point(other: Edge):  # -> Vertex | null:
 	if _a == other._a or _a == other._b:
 		return _a
