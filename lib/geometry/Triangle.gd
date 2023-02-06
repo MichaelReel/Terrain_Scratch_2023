@@ -95,7 +95,7 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 	var head_color = debug_color_dict.head_color
 	var mouth_color = debug_color_dict.mouth_color
 	var settlement_color = debug_color_dict.settlement_color
-	var road_color = debug_color_dict.road_color
+	var road_cell_color = debug_color_dict.road_cell_color
 	var point_color_dict := {}
 	
 	if _is_potential_settlement:
@@ -105,7 +105,7 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 	
 	if _contains_road:
 		for point in _points:
-			point_color_dict[point] = road_color
+			point_color_dict[point] = road_cell_color
 		return point_color_dict
 		
 	for point in _points:
@@ -167,3 +167,14 @@ func set_potential_settlement() -> void:
 
 func set_contains_road() -> void:
 	_contains_road = true
+
+func order_clockwise(edge_1: Edge, edge_2: Edge) -> Array:  # -> Array[Edge]
+	"""Assuming the given edges are in the triangle, return them in clockwise order"""
+	for i in range(3):
+		if _edges[i] == edge_1 and _edges[(i + 1) % 3] == edge_2:
+			return [edge_1, edge_2]
+		if _edges[i] == edge_2 and _edges[(i + 1) % 3] == edge_1:
+			return [edge_2, edge_1]
+	return []
+	
+	

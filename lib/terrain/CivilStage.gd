@@ -4,7 +4,7 @@ extends Stage
 var _grid: Grid
 var _lake_stage: LakeStage
 var _settlement_cells: Array = []  # Array[SearchCell]
-var _road_paths: Array = []  # Array[Array[Triangle]]
+var _road_paths: Array = []  # Array[TrianglePath]
 var _slope_penalty: float
 var _river_penalty: float
 
@@ -23,6 +23,9 @@ func perform() -> void:
 	_locate_settlements()
 	var start_settlement = _pick_starting_settlement()
 	_lay_road_network(start_settlement)
+
+func get_road_paths() -> Array:  # -> Array[TrianglePath]
+	return _road_paths
 
 func _locate_settlements() -> void:
 	for row in _grid.get_triangles():
@@ -49,22 +52,19 @@ func _lay_road_network(start_settlement: Triangle) -> void:
 	for settlement_cell in _settlement_cells:
 		var road_path = _get_path_from_survey(settlement_cell, survey_results)
 		_road_paths.append(road_path)
-	
-		# Set road cells as road cells
-		for triangle in road_path:
-			triangle.set_contains_road()
 
-func _get_path_from_survey(destination: Triangle, survey: Dictionary) -> Array:
+func _get_path_from_survey(origin: Triangle, survey: Dictionary) -> TrianglePath:
 	# (survey: Dictionary[Triangle, SearchCell]) -> Array[triangle]
 	
-	var path: Array = []  # Array[Triangle]
-	var destination_cell: SearchCell = survey[destination]
-	var road_cell: SearchCell = destination_cell.get_path()
+	var path: TrianglePath = TrianglePath.new(origin)
+	var origin_cell: SearchCell = survey[origin]
+	var road_cell: SearchCell = origin_cell.get_path()
 	if not road_cell:
 		return path
 	while road_cell.get_cost() > 0.0:
 		path.append(road_cell.get_triangle())
 		road_cell = road_cell.get_path()
+	path.complete(road_cell.get_triangle())
 	return path
 
 func _get_cell_cost_survey_from(start_settlement: Triangle) -> Dictionary:  # -> Dictionary[Triangle, SearchCell]
@@ -79,9 +79,11 @@ func _get_cell_cost_survey_from(start_settlement: Triangle) -> Dictionary:  # ->
 		for neighbour_tri in search_cell.get_triangle().get_neighbours():
 			if _lake_stage.triangle_in_water_body(neighbour_tri):
 				continue
-			var journey_cost: float = search_cell.get_cost() 
+			
 			# Up the cost for each new step
+			var journey_cost: float = search_cell.get_cost()
 			journey_cost += _NORMAL_COST
+			
 			# Up the cost if crossing a river
 			var shared_edge = search_cell.get_triangle().get_shared_edge(neighbour_tri)
 			if shared_edge.has_river():

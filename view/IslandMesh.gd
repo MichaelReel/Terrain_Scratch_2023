@@ -20,6 +20,7 @@ var high_level_terrain: HighlevelTerrain
 var last_cursor_triangle: Triangle
 
 onready var _water_material := preload("res://materials/water_surface.tres")
+onready var _terrain_material := preload("res://materials/terrain_surface.tres")
 onready var _surface_pin := $SurfacePin
 onready var _surface_cursor_mesh := $CursorMesh
 
@@ -89,6 +90,7 @@ func _on_all_stages_complete() -> void:
 	set_mesh(island_mesh)
 	_create_water_mesh_instances(_water_material)
 	_create_river_mesh_instances(_water_material)
+	_create_road_mesh_instances(_terrain_material)
 	print("High Level Terrain stages complete")
 
 func _create_water_mesh_instances(water_material: Material) -> void:
@@ -105,5 +107,13 @@ func _create_river_mesh_instances(water_material: Material) -> void:
 		var mesh_instance: MeshInstance = MeshInstance.new()
 		mesh_instance.mesh = river_mesh
 		mesh_instance.set_surface_material(0, water_material)
+		add_child(mesh_instance)
+
+func _create_road_mesh_instances(terrain_material: Material) -> void:
+	var meshes: Array = MeshUtils.get_all_road_surface_meshes(high_level_terrain, debug_color_dict)
+	for road_mesh in meshes:
+		var mesh_instance: MeshInstance = MeshInstance.new()
+		mesh_instance.mesh = road_mesh
+		mesh_instance.set_surface_material(0, terrain_material)
 		add_child(mesh_instance)
 

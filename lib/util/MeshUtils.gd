@@ -93,3 +93,40 @@ static func _get_river_surface_mesh(river: EdgePath, lake_stage: LakeStage) -> M
 	var _err = surface_tool.commit(river_mesh)
 	
 	return river_mesh
+
+static func get_all_road_surface_meshes(high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict, width: float = 0.25, clearance: float = 0.1) -> Array:  # -> Array[Mesh]
+	var meshes: Array = []
+	for road_path in high_level_terrain.get_road_paths():
+		meshes.append(_get_road_surface_mesh_for_path(road_path, debug_color_dict, width, clearance))
+	return meshes
+
+static func _get_road_surface_mesh_for_path(road_path: TrianglePath, debug_color_dict: DebugColorDict, width: float, clearance: float) -> Mesh:
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var road_mesh: Mesh = Mesh.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Draw a little bit of road for each pair of edges
+	var edge_pair_list = road_path.get_path_pair_edges()
+	for edge_pair in edge_pair_list:
+		var vertices = _get_road_vertices_for_edges(edge_pair[0], edge_pair[1], width, clearance)
+		for vertex in vertices:
+			surface_tool.add_color(debug_color_dict.road_color)
+			surface_tool.add_vertex(vertex + clearance * Vector3.UP)
+	
+	surface_tool.generate_normals()
+	var _err = surface_tool.commit(road_mesh)
+	return road_mesh
+
+static func _get_road_vertices_for_edges(edge_1: Edge, edge_2: Edge, width: float, clearance: float) -> Array:  # -> Array[Vector3]
+	var shared_point = edge_1.shared_point(edge_2)
+	var other_1 = edge_1.other_point(shared_point)
+	var other_2 = edge_2.other_point(shared_point)
+	var clearance_adjust = clearance * Vector3.UP
+	var vertices = [
+		lerp(shared_point.get_vector(), other_1.get_vector(), 0.5 - 0.5 * width) + clearance_adjust,
+		lerp(shared_point.get_vector(), other_2.get_vector(), 0.5 - 0.5 * width) + clearance_adjust,
+		lerp(shared_point.get_vector(), other_2.get_vector(), 0.5 + 0.5 * width) + clearance_adjust,
+		lerp(shared_point.get_vector(), other_2.get_vector(), 0.5 + 0.5 * width) + clearance_adjust,
+		lerp(shared_point.get_vector(), other_1.get_vector(), 0.5 + 0.5 * width) + clearance_adjust,
+		lerp(shared_point.get_vector(), other_1.get_vector(), 0.5 - 0.5 * width) + clearance_adjust,
+	]
+	return vertices

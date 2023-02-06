@@ -99,6 +99,11 @@ _global_script_classes=[ {
 "language": "GDScript",
 "path": "res://lib/geometry/Triangle.gd"
 }, {
+"base": "Object",
+"class": "TrianglePath",
+"language": "GDScript",
+"path": "res://lib/terrain/TrianglePath.gd"
+}, {
 "base": "Model",
 "class": "Vertex",
 "language": "GDScript",
@@ -123,6 +128,7 @@ _global_script_class_icons={
 "Stage": "",
 "StageUtils": "",
 "Triangle": "",
+"TrianglePath": "",
 "Vertex": ""
 }
 
