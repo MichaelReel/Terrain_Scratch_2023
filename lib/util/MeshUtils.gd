@@ -97,6 +97,8 @@ static func _get_river_surface_mesh(river: EdgePath, lake_stage: LakeStage) -> M
 static func get_all_road_surface_meshes(high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict, width: float = 0.25, clearance: float = 0.1) -> Array:  # -> Array[Mesh]
 	var meshes: Array = []
 	for road_path in high_level_terrain.get_road_paths():
+		if road_path.no_path():
+			continue
 		meshes.append(_get_road_surface_mesh_for_path(road_path, debug_color_dict, width, clearance))
 	return meshes
 

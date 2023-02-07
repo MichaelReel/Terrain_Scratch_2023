@@ -34,3 +34,6 @@ func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 		edge_pair_list.append(_path[i].order_clockwise(edge_list[i], edge_list[i + 1]))
 	
 	return edge_pair_list
+
+func no_path() -> bool:
+	return _path.empty()
