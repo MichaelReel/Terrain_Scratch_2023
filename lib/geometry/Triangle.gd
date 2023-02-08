@@ -10,7 +10,7 @@ var _neighbours: Array = []  # Array[Triangle]
 var _corner_neighbours: Array = []  # Array[Triangle]
 var _parent: Object = null
 var _is_potential_settlement: bool = false
-var _contains_road: bool = false
+var _roads: Array = []  # Array[TrianglePath]
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
 	_points = points
@@ -103,7 +103,7 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 			point_color_dict[point] = settlement_color
 		return point_color_dict
 	
-	if _contains_road:
+	if contains_road():
 		for point in _points:
 			point_color_dict[point] = road_cell_color
 		return point_color_dict
@@ -165,8 +165,20 @@ func is_flat() -> bool:
 func set_potential_settlement() -> void:
 	_is_potential_settlement = true
 
-func set_contains_road() -> void:
-	_contains_road = true
+func add_road(road: Object) -> void:  # (road: TrianglePath)
+	_roads.append(road)
+
+func contains_road() -> bool:
+	return not _roads.empty()
+
+func road_crossing() -> bool:
+	return len(_roads) > 1
+
+func get_road() -> Array:  # -> Array[TrianglePath]
+	return _roads
+
+func remove_road(road: Object) -> void:  # (road: TrianglePath)
+	_roads.erase(road)
 
 func order_clockwise(edge_1: Edge, edge_2: Edge) -> Array:  # -> Array[Edge]
 	"""Assuming the given edges are in the triangle, return them in clockwise order"""

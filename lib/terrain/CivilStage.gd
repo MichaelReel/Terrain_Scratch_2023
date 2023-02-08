@@ -21,8 +21,8 @@ func _to_string() -> String:
 
 func perform() -> void:
 	_locate_settlements()
-	var start_settlement = _pick_starting_settlement()
-	_lay_road_network(start_settlement)
+	var start_settlements = _pick_starting_settlements()
+	_lay_road_network(start_settlements)
 
 func get_road_paths() -> Array:  # -> Array[TrianglePath]
 	return _road_paths
@@ -40,18 +40,46 @@ func _locate_settlements() -> void:
 			triangle.set_potential_settlement()
 			_settlement_cells.append(triangle)
 
-func _pick_starting_settlement() -> Triangle:
+func _pick_starting_settlements() -> Array:  # -> Array[Triangle]
 	# Might want to put some rules here, but for now just return any cell
-	return _settlement_cells[0]
+	return [_settlement_cells.front(), _settlement_cells.back()]
 
-func _lay_road_network(start_settlement: Triangle) -> void:
+func _lay_road_network(start_settlements: Array) -> void:  # (start_settlements: Array[Triangle])
 	# Debug notes: The dictionary here will show as "null" even if not null while debugging
-	var survey_results: Dictionary = _get_cell_cost_survey_from(start_settlement)
+	var surveys: Array = []  # Array[Dicionary]
+	for start_settlement in start_settlements:
+		surveys.append(_get_cell_cost_survey_from(start_settlement))
 	
 	# For each town we can create a path back to the start
 	for settlement_cell in _settlement_cells:
-		var road_path = _get_path_from_survey(settlement_cell, survey_results)
-		_road_paths.append(road_path)
+		for survey in surveys:
+			var road_path = _get_path_from_survey(settlement_cell, survey)
+			_road_paths.append(road_path)
+
+	# TODO: Removing crossing roads will not work
+	#       All roads will convene at settlements and cannot help but cross
+	#       Some paths will even follow each other for some length
+	#       Need to optimise this as we're duplicating a lot of meshes
+	
+	
+#	# Look for places roads cross, and remove the longer paths
+#	# When each path is completed, the path is added to the affected triangles
+#	# Find the crossings, order the paths by length and remove the longest
+#	var crossing_road_list: Array = []  # Array[TrianglePath]
+#	for road_path in _road_paths:
+#		if road_path.other_paths_crossed():
+#			crossing_road_list.append(road_path)
+#
+#	crossing_road_list.sort_custom(TrianglePath, "sort_path_length")
+#
+#	while not crossing_road_list.empty():
+#		var crossing_road: TrianglePath = crossing_road_list.pop_back()
+#		# Check this road hasn't had it's crossings removed already
+#		if not crossing_road.other_paths_crossed():
+#			continue
+#		# Otherwise, remove it from it's triangles and the overall list
+#		crossing_road.remove_from_cells()
+#		_road_paths.erase(crossing_road)
 
 func _get_path_from_survey(origin: Triangle, survey: Dictionary) -> TrianglePath:
 	# (survey: Dictionary[Triangle, SearchCell]) -> Array[triangle]

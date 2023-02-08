@@ -16,12 +16,12 @@ func complete(destination: Triangle) -> void:
 	_destination = destination
 	# Set road cells as road cells
 	for triangle in _path:
-		triangle.set_contains_road()
+		triangle.add_road(self)
 
 func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 	"""Return a list of edge pairs, where the edges are in clockwise rotation order"""
 	
-	if _path.empty():
+	if no_path():
 		return []
 	
 	var edge_list: Array = [_origin.get_shared_edge(_path.front())]  # Array[Edge]
@@ -37,3 +37,17 @@ func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 
 func no_path() -> bool:
 	return _path.empty()
+
+func other_paths_crossed() -> bool:
+	# Go through the path triangles, check if the triangle has more than one path
+	for triangle in _path:
+		if triangle.road_crossing():
+			return true
+	return false
+
+func remove_from_cells() -> void:
+	for triangle in _path:
+		triangle.remove_road(self)
+
+static func sort_path_length(a: TrianglePath, b: TrianglePath) -> bool:
+	return len(a._path) < len(b._path)
