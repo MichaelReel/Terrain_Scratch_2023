@@ -35,6 +35,15 @@ func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 func no_path() -> bool:
 	return _path.empty()
 
+func purposeless() -> bool:
+	return (
+		no_path() 
+		or _destination == null
+		or _origin == null
+		# or not _destination.is_junction_or_settlement()
+		or not _origin.is_junction_or_settlement()
+	)
+
 func other_paths_crossed() -> bool:
 	# Go through the path triangles, check if the triangle has more than one path
 	for triangle in _path:

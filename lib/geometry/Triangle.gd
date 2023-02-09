@@ -184,6 +184,9 @@ func road_crossing() -> bool:
 func get_road() -> Array:  # -> Array[TrianglePath]
 	return _roads
 
+func is_junction_or_settlement() -> bool:
+	return _junction or _is_potential_settlement
+
 func remove_road(road: Object) -> void:  # (road: TrianglePath)
 	_roads.erase(road)
 

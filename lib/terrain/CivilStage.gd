@@ -63,6 +63,16 @@ func _lay_road_network(start_settlements: Array) -> void:  # (start_settlements:
 		for survey in surveys:
 			var road_path = _get_path_from_survey(settlement_cell, survey)
 			_road_paths.append(road_path)
+	
+	# Go through each path and remove it if it serves no purpose
+	var remove_roads: Array = []  # Array[TrianglePath]
+	for road in _road_paths:
+		if road.purposeless():
+			remove_roads.append(road)
+	
+	for road in remove_roads:
+		road.remove_from_cells()
+		_road_paths.erase(road)
 
 func _get_path_from_survey(origin: Triangle, survey: Dictionary) -> TrianglePath:
 	# (survey: Dictionary[Triangle, SearchCell]) -> Array[triangle]
