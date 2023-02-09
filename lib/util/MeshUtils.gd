@@ -42,6 +42,27 @@ static func get_river_surface_meshes(high_level_terrain: HighlevelTerrain) -> Ar
 		meshes.append(_get_river_surface_mesh(river, high_level_terrain._lake_stage))
 	return meshes
 
+static func get_all_road_surface_meshes(
+	high_level_terrain: HighlevelTerrain,
+	debug_color_dict: DebugColorDict,
+	width: float = 0.25,
+	clearance: float = 0.1
+) -> Array:  # -> Array[Mesh]
+	var meshes: Array = []
+	for road_path in high_level_terrain.get_road_paths():
+		if road_path.no_path():
+			continue
+		meshes.append(_get_road_surface_mesh_for_path(road_path, debug_color_dict, width, clearance))
+	return meshes
+
+static func get_road_sign_debug_meshes(
+	high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict
+) -> Array:  # -> Array[Mesh]
+	var meshes: Array = []
+	for junction in high_level_terrain.get_road_junctions():
+		meshes.append(_draw_marker_on_triangle(junction, debug_color_dict.junction_marker_color, 3.0))
+	return meshes
+
 static func _get_water_body_mesh(lake: Region) -> Mesh:
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var lake_mesh: Mesh = Mesh.new()
@@ -94,14 +115,6 @@ static func _get_river_surface_mesh(river: EdgePath, lake_stage: LakeStage) -> M
 	
 	return river_mesh
 
-static func get_all_road_surface_meshes(high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict, width: float = 0.25, clearance: float = 0.1) -> Array:  # -> Array[Mesh]
-	var meshes: Array = []
-	for road_path in high_level_terrain.get_road_paths():
-		if road_path.no_path():
-			continue
-		meshes.append(_get_road_surface_mesh_for_path(road_path, debug_color_dict, width, clearance))
-	return meshes
-
 static func _get_road_surface_mesh_for_path(road_path: TrianglePath, debug_color_dict: DebugColorDict, width: float, clearance: float) -> Mesh:
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var road_mesh: Mesh = Mesh.new()
@@ -132,3 +145,34 @@ static func _get_road_vertices_for_edges(edge_1: Edge, edge_2: Edge, width: floa
 		lerp(shared_point.get_vector(), other_1.get_vector(), 0.5 - 0.5 * width) + clearance_adjust,
 	]
 	return vertices
+
+static func _draw_marker_on_triangle(junction: Triangle, color: Color, size: float) -> Mesh:
+	# Just draw some kind of marker
+	var pos: Vector3 = junction.get_center()
+	var vertices = [
+		[
+			pos,
+			pos + (Vector3.UP * size) + (Vector3.LEFT * size * 0.5),
+			pos + (Vector3.UP * size) + (Vector3.RIGHT * size * 0.5),
+		],
+		[
+			pos,
+			pos + (Vector3.UP * size) + (Vector3.FORWARD * size * 0.5),
+			pos + (Vector3.UP * size) + (Vector3.BACK * size * 0.5),
+		]
+	]
+	
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var road_mesh: Mesh = Mesh.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	
+	for poly in vertices:
+		for _i in range(2):
+			for vertex in poly:
+				surface_tool.add_color(color)
+				surface_tool.add_vertex(vertex)
+			poly.invert()
+	
+	surface_tool.generate_normals()
+	var _err = surface_tool.commit(road_mesh)
+	return road_mesh

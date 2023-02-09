@@ -80,8 +80,8 @@ func _stage_thread() -> void:
 	
 	_update_pin_cursor_display()
 
-func _on_stage_complete(stage: Stage) -> void:
-	print(str(stage))
+func _on_stage_complete(stage: Stage, duration: int) -> void:
+	print("%s completed in %d msecs" % [stage, duration])
 	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
 
@@ -91,29 +91,25 @@ func _on_all_stages_complete() -> void:
 	_create_water_mesh_instances(_water_material)
 	_create_river_mesh_instances(_water_material)
 	_create_road_mesh_instances(_terrain_material)
+	_create_road_sign_debug_meshes(_terrain_material)
 	print("High Level Terrain stages complete")
 
 func _create_water_mesh_instances(water_material: Material) -> void:
-	var meshes: Array = MeshUtils.get_water_body_meshes(high_level_terrain)
-	for water_mesh in meshes:
-		var mesh_instance: MeshInstance = MeshInstance.new()
-		mesh_instance.mesh = water_mesh
-		mesh_instance.set_surface_material(0, water_material)
-		add_child(mesh_instance)
+	_insert_meshes(MeshUtils.get_water_body_meshes(high_level_terrain), water_material)
 
 func _create_river_mesh_instances(water_material: Material) -> void:
-	var meshes: Array = MeshUtils.get_river_surface_meshes(high_level_terrain)
-	for river_mesh in meshes:
-		var mesh_instance: MeshInstance = MeshInstance.new()
-		mesh_instance.mesh = river_mesh
-		mesh_instance.set_surface_material(0, water_material)
-		add_child(mesh_instance)
+	_insert_meshes(MeshUtils.get_river_surface_meshes(high_level_terrain), water_material)
 
 func _create_road_mesh_instances(terrain_material: Material) -> void:
-	var meshes: Array = MeshUtils.get_all_road_surface_meshes(high_level_terrain, debug_color_dict)
-	for road_mesh in meshes:
-		var mesh_instance: MeshInstance = MeshInstance.new()
-		mesh_instance.mesh = road_mesh
-		mesh_instance.set_surface_material(0, terrain_material)
-		add_child(mesh_instance)
+	_insert_meshes(MeshUtils.get_all_road_surface_meshes(high_level_terrain, debug_color_dict), terrain_material)
 
+func _create_road_sign_debug_meshes(terrain_material: Material) -> void:
+	_insert_meshes(MeshUtils.get_road_sign_debug_meshes(high_level_terrain, debug_color_dict), terrain_material)
+
+func _insert_meshes(meshes: Array, material: Material) -> void:  # Array[Mesh]
+	for in_mesh in meshes:
+		var mesh_instance: MeshInstance = MeshInstance.new()
+		mesh_instance.mesh = in_mesh
+		mesh_instance.set_surface_material(0, material)
+		add_child(mesh_instance)
+		

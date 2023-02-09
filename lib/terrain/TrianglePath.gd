@@ -14,9 +14,6 @@ func append(road: Triangle) -> void:
 
 func complete(destination: Triangle) -> void:
 	_destination = destination
-	# Set road cells as road cells
-	for triangle in _path:
-		triangle.add_road(self)
 
 func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 	"""Return a list of edge pairs, where the edges are in clockwise rotation order"""

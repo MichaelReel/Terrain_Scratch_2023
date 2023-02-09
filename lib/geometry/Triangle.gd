@@ -11,6 +11,7 @@ var _corner_neighbours: Array = []  # Array[Triangle]
 var _parent: Object = null
 var _is_potential_settlement: bool = false
 var _roads: Array = []  # Array[TrianglePath]
+var _junction: bool = false
 
 func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
 	_points = points
@@ -167,6 +168,12 @@ func set_potential_settlement() -> void:
 
 func add_road(road: Object) -> void:  # (road: TrianglePath)
 	_roads.append(road)
+
+func set_junction() -> void:
+	_junction = true
+
+func is_junction() -> bool:
+	return _junction
 
 func contains_road() -> bool:
 	return not _roads.empty()

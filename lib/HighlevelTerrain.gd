@@ -6,7 +6,7 @@ This works out the land edges and the major bodies of water
 and can be used as a base reference for other terrain features
 """
 
-signal stage_complete(stage)
+signal stage_complete(stage, duration)
 signal all_stages_complete()
 
 
@@ -53,8 +53,9 @@ func perform() -> void:
 	]
 	
 	for stage in stages:
+		var time_start = OS.get_ticks_msec()
 		stage.perform()
-		emit_signal("stage_complete", stage)
+		emit_signal("stage_complete", stage, OS.get_ticks_msec() - time_start)
 	
 	emit_signal("all_stages_complete")
 
@@ -67,3 +68,6 @@ func get_rivers() -> Array:  # -> Array[EdgePath]
 
 func get_road_paths() -> Array:  # -> Array[TrianglePaths]
 	return _civil_stage.get_road_paths()
+
+func get_road_junctions() -> Array:  # -> Array[Triangle]
+	return _civil_stage.get_junctions()
