@@ -68,3 +68,6 @@ func has_river() -> bool:
 
 func get_center() -> Vector3:
 	return lerp(_a.get_vector(), _b.get_vector(), 0.5)
+
+func get_height_diff() -> float:
+	return abs(_a.get_height() - _b.get_height())

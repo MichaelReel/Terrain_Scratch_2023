@@ -82,17 +82,23 @@ func _stage_thread() -> void:
 
 func _on_stage_complete(stage: Stage, duration: int) -> void:
 	print("%s completed in %d msecs" % [stage, duration])
-	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
-	set_mesh(island_mesh)
+	var time_start = OS.get_ticks_msec()
+	_update_land_terrain_mesh()
+	match str(stage):
+		"River Stage":
+			_create_water_mesh_instances(_water_material)
+			_create_river_mesh_instances(_water_material)
+		"Civil Stage":
+			_create_road_mesh_instances(_terrain_material)
+			_create_road_sign_debug_meshes(_terrain_material)
+	print("%s meshed updated in %d msecs" % [stage, (OS.get_ticks_msec() - time_start)])
 
 func _on_all_stages_complete() -> void:
+	print("High Level Terrain stages complete")
+
+func _update_land_terrain_mesh() -> void:
 	var island_mesh: Mesh = MeshUtils.get_land_mesh(high_level_terrain, debug_color_dict)
 	set_mesh(island_mesh)
-	_create_water_mesh_instances(_water_material)
-	_create_river_mesh_instances(_water_material)
-	_create_road_mesh_instances(_terrain_material)
-	_create_road_sign_debug_meshes(_terrain_material)
-	print("High Level Terrain stages complete")
 
 func _create_water_mesh_instances(water_material: Material) -> void:
 	_insert_meshes(MeshUtils.get_water_body_meshes(high_level_terrain), water_material)
