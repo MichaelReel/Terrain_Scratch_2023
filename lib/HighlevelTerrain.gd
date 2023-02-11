@@ -30,6 +30,7 @@ func _init(
 	river_count: int,
 	slope_penalty: float,
 	river_penalty: float,
+	cliff_min_slope: float,
 	debug_color_map: DebugColorDict
 ) -> void:
 	var rng = RandomNumberGenerator.new()
@@ -41,7 +42,7 @@ func _init(
 	_height_stage = HeightStage.new(_island_stage.get_region(), _lake_stage, diff_height, diff_max_multi, rng.randi())
 	_river_stage = RiverStage.new(grid, _lake_stage, river_count, debug_color_map.river_color, erode_depth, rng.randi())
 	_civil_stage = CivilStage.new(grid, _lake_stage, slope_penalty, river_penalty)
-	_cliff_stage = CliffStage.new(grid, _lake_stage, debug_color_map.cliff_color)
+	_cliff_stage = CliffStage.new(grid, _lake_stage, debug_color_map.cliff_color, cliff_min_slope)
 
 
 func perform() -> void:

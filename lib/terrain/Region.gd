@@ -148,7 +148,7 @@ func get_perimeter_lines(fill_in: bool = true) -> Array:  # -> Array[Vertex]
 		_perimeter_lines.append_array(borders)
 	
 	# Identify chains by tracking each point in series of perimeter lines
-	var chains: Array = _get_chains_from_lines(_perimeter_lines)
+	var chains: Array = _get_looped_chains_from_lines(_perimeter_lines)
 	
 	# Set the _perimeter to the longest chain
 	var max_chain: Array = chains.back()

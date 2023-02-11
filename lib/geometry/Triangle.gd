@@ -226,3 +226,9 @@ func set_cliff_edge(edge: Object) -> void:  # (edge: Edge | null)
 
 func set_cliff_point(point: Object) -> void:  # (point: Vertex | null)
 	_cliff_point = point
+
+func touches_river() -> bool:
+	for point in _points:
+		if point.has_river():
+			return true
+	return false
