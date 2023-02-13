@@ -109,6 +109,14 @@ func erode(erode_depth: float) -> void:
 func get_erosion() -> float:
 	return _eroded_depth
 
+func duplicate_to(new_vertex: Vertex) -> Vertex:
+	"""Create a copy of this vertex for splitting parts of the terrain"""
+	new_vertex._pos = _pos
+	new_vertex._connections = _connections.duplicate()
+	new_vertex._triangles = _triangles.duplicate()
+	new_vertex._height_set = _height_set
+	return new_vertex
+
 static func sort_vert_inv_hortz(a: Vertex, b: Vertex) -> bool:
 	"""This will sort by Y desc, then X asc"""
 	if a._pos.y > b._pos.y:

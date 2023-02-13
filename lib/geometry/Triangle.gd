@@ -232,3 +232,25 @@ func touches_river() -> bool:
 		if point.has_river():
 			return true
 	return false
+
+func replace_existing_edge_with(existing: Edge, replacement: Edge) -> void:
+	"""
+	This should entirely replace an existing edge (including points) with the new edge.
+
+	The edge points should be in equivalent order within the edge.
+	"""
+	# Replace the exising points
+	var existing_points = existing.get_points()
+	var replacement_points = replacement.get_points()
+	for j in range(len(_points)):
+		for i in range(len(existing_points)):
+			if _points[j] == existing_points[i]:
+				_points[j] = replacement_points[i]
+	
+	# Replace the existing edge
+	_edges[_edges.find(existing)] = replacement
+
+	# Modify the replacement sub elements to point to this triangle
+	replacement.set_border_of(self)
+	for point in replacement_points:
+		point.add_polygon(self)
