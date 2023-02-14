@@ -12,7 +12,7 @@ var _is_head: bool = false
 var _is_mouth: bool = false
 var _eroded_depth: float = 0.0
 
-func _init(x: float, z: float) -> void:
+func _init(x: float = 0.0, z: float = 0.0) -> void:
 	_pos = Vector3(x, 0.0, z)
 	_connections = []
 	_triangles = []
@@ -41,6 +41,9 @@ func height_set() -> bool:
 func set_height(height: float) -> void:
 	_height_set = true
 	_pos.y = height
+
+func raise_terrain(add_height: float) -> void:
+	_pos.y += add_height
 
 func get_height() -> float:
 	return _pos.y

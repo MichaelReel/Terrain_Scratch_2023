@@ -94,18 +94,6 @@ static func _extract_chains_from_edges(all_edges: Array) -> Array:  # (perimeter
 	
 	This is destructive and will leave the input array empty.
 	"""
-	# Before processing, remove *both* copies of any duplicated edges
-	# Will change the input, but should prevent some weird loops
-	var dupes: Array = []  # Array[Edge]
-	
-	for i in range(len(all_edges)):
-		var edge = all_edges[i]
-		if all_edges.find(edge, i + 1) >= 0:
-			dupes.append(edge)
-	
-	for dupe in dupes:
-		all_edges.erase(dupe)
-		all_edges.erase(dupe)
 	
 	# Identify chains by tracking each point in series of perimeter lines
 	var chains: Array = []

@@ -254,3 +254,13 @@ func replace_existing_edge_with(existing: Edge, replacement: Edge) -> void:
 	replacement.set_border_of(self)
 	for point in replacement_points:
 		point.add_polygon(self)
+
+func replace_existing_point_with(existing: Vertex, replacement: Vertex) -> void:
+	"""
+	This should entirely replace an existing point with the new point.
+	"""
+	# Replace the exising point
+	_points[_points.find(existing)] = replacement
+	
+	# Modify the replacement sub element to point to this triangle
+	replacement.add_polygon(self)
