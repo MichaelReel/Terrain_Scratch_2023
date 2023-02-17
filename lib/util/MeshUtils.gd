@@ -63,6 +63,14 @@ static func get_road_sign_debug_meshes(
 		meshes.append(_draw_marker_on_triangle(junction, debug_color_dict.junction_marker_color, 3.0))
 	return meshes
 
+static func get_cliff_surface_meshes(
+	high_level_terrain: HighlevelTerrain, debug_color_dict: DebugColorDict
+) -> Array:  # -> Array[Mesh]
+	var meshes: Array = []
+	for cliff_surface in high_level_terrain.get_cliff_surfaces():
+		meshes.append(_get_cliff_surface_mesh(cliff_surface, debug_color_dict.cliff_color))
+	return meshes
+
 static func _get_water_body_mesh(lake: Region) -> Mesh:
 	var surface_tool: SurfaceTool = SurfaceTool.new()
 	var lake_mesh: Mesh = Mesh.new()
@@ -145,6 +153,21 @@ static func _get_road_vertices_for_edges(edge_1: Edge, edge_2: Edge, width: floa
 		lerp(shared_point.get_vector(), other_1.get_vector(), 0.5 - 0.5 * width) + clearance_adjust,
 	]
 	return vertices
+
+static func _get_cliff_surface_mesh(cliff_surface: Array, color: Color) -> Mesh:
+	# (cliff_surface: Array[Triangle])
+	var surface_tool: SurfaceTool = SurfaceTool.new()
+	var cliff_mesh: Mesh = Mesh.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	# Draw a little bit of road for each pair of edges
+	for cliff_triangle in cliff_surface:
+		for vertex in cliff_triangle.get_vertices():
+			surface_tool.add_color(color)
+			surface_tool.add_vertex(vertex.get_vector())
+	
+	surface_tool.generate_normals()
+	var _err = surface_tool.commit(cliff_mesh)
+	return cliff_mesh
 
 static func _draw_marker_on_triangle(junction: Triangle, color: Color, size: float) -> Mesh:
 	# Just draw some kind of marker

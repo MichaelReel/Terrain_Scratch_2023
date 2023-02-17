@@ -93,6 +93,8 @@ func _on_stage_complete(stage: Stage, duration: int) -> void:
 		"Civil Stage":
 			_create_road_mesh_instances(_terrain_material)
 			_create_road_sign_debug_meshes(_terrain_material)
+		"Cliff Stage":
+			_create_cliff_mesh_instances(_terrain_material)
 	print("%s meshed updated in %d msecs" % [stage, (OS.get_ticks_msec() - time_start)])
 
 func _on_all_stages_complete() -> void:
@@ -113,6 +115,9 @@ func _create_road_mesh_instances(terrain_material: Material) -> void:
 
 func _create_road_sign_debug_meshes(terrain_material: Material) -> void:
 	_insert_meshes(MeshUtils.get_road_sign_debug_meshes(high_level_terrain, debug_color_dict), terrain_material)
+
+func _create_cliff_mesh_instances(terrain_material: Material) -> void:
+	_insert_meshes(MeshUtils.get_cliff_surface_meshes(high_level_terrain, debug_color_dict), terrain_material)
 
 func _insert_meshes(meshes: Array, material: Material) -> void:  # Array[Mesh]
 	for in_mesh in meshes:

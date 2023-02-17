@@ -4,8 +4,8 @@ extends Model
 
 var _a: Vertex
 var _b: Vertex
-var _borders: Array  # Array[Triangle]
-var _river: Object  # EdgePath | null
+var _borders: Array = []  # Array[Triangle]
+var _river: Object = null  # EdgePath | null
 
 func _init(a: Vertex, b: Vertex) -> void:
 	if Vertex.sort_vert_inv_hortz(a, b):
@@ -14,7 +14,8 @@ func _init(a: Vertex, b: Vertex) -> void:
 	else:
 		_a = b
 		_b = a
-	_borders = []
+	a.add_connection(self)
+	b.add_connection(self)
 
 func get_points() -> Array:  # -> Array[Vertex]
 	return [_a, _b]
@@ -51,9 +52,13 @@ func shares_a_point_with(other: Edge) -> bool:
 		other.has_point(_b)
 	)
 
-func set_border_of(triangle) -> void:  # (triangle: Triangle)
+func set_border_of(triangle: Object) -> void:  # (triangle: Triangle)
 	if not triangle in _borders:
 		_borders.append(triangle)
+
+func remove_border_of(triangle: Object) -> void:  # (triangle: Triangle)
+	if triangle in _borders:
+		_borders.erase(triangle)
 
 func lowest_end_point() -> Vertex:
 	return _a if _a.get_height() < _b.get_height() else _b

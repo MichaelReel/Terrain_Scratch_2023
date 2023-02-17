@@ -14,8 +14,10 @@ var _roads: Array = []  # Array[TrianglePath]
 var _junction: bool = false
 var _cliff_edge: Object = null  # Edge | null
 var _cliff_point: Object = null  # Vertex | null
+var _special_debug_edge: Object = null  # Edge | null
+var _special_debug_point: Object = null  # Vertex | null
 
-func _init(points: Array, index_col: int, index_row: int) -> void:  # points: Array[Vertex]
+func _init(points: Array, index_col: int = -1, index_row: int = -1) -> void:  # points: Array[Vertex]
 	_points = points
 	_index_col = index_col
 	_index_row = index_row
@@ -100,6 +102,7 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 	var settlement_color = debug_color_dict.settlement_color
 	var road_cell_color = debug_color_dict.road_cell_color
 	var cliff_color = debug_color_dict.cliff_color
+	var special_debug_color = debug_color_dict.special_debug_color
 	var point_color_dict := {}
 	
 	if _is_potential_settlement:
@@ -129,6 +132,13 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 	
 	if _cliff_point:
 		point_color_dict[_cliff_point] = cliff_color
+	
+	if _special_debug_edge:
+		for point in _special_debug_edge.get_points():
+			point_color_dict[point] = special_debug_color
+	
+	if _special_debug_point:
+		point_color_dict[_special_debug_point] = special_debug_color
 
 	return point_color_dict
 
@@ -233,6 +243,13 @@ func touches_river() -> bool:
 			return true
 	return false
 
+func points_in_draw_order(a: Vertex, b: Vertex) -> bool:
+	var a_ind = _points.find(a)
+	var b_ind = _points.find(b)
+	if a_ind < 0 or b_ind < 0:
+		printerr("Testing draw order for points that are not in this triangle")
+	return a_ind < b_ind
+
 func replace_existing_edge_with(existing: Edge, replacement: Edge) -> void:
 	"""
 	This should entirely replace an existing edge (including points) with the new edge.
@@ -251,7 +268,10 @@ func replace_existing_edge_with(existing: Edge, replacement: Edge) -> void:
 	_edges[_edges.find(existing)] = replacement
 
 	# Modify the replacement sub elements to point to this triangle
+	existing.remove_border_of(self)
 	replacement.set_border_of(self)
+	for point in existing_points:
+		point.remove_polygon(self)
 	for point in replacement_points:
 		point.add_polygon(self)
 
@@ -263,4 +283,11 @@ func replace_existing_point_with(existing: Vertex, replacement: Vertex) -> void:
 	_points[_points.find(existing)] = replacement
 	
 	# Modify the replacement sub element to point to this triangle
+	existing.remove_polygon(self)
 	replacement.add_polygon(self)
+
+func set_special_debug_point(debug_point: Vertex) -> void:
+	_special_debug_point = debug_point
+
+func set_special_debug_edge(debug_edge: Edge) -> void:
+	_special_debug_edge = debug_edge

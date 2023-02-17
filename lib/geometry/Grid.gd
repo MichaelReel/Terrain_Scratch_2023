@@ -131,8 +131,6 @@ func get_triangle_at(x: float, z: float) -> Object:  # -> Triangle | null
 
 func _add_grid_line(a: Vertex, b: Vertex) -> void:
 	var new_line := Edge.new(a, b)
-	a.add_connection(new_line)
-	b.add_connection(new_line)
 	_grid_lines.append(new_line)
 
 func _create_triangle(row: int, col: int) -> Triangle:

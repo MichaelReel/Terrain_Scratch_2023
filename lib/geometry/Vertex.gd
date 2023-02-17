@@ -56,6 +56,10 @@ func add_polygon(triangle: Object) -> void:  # (triangle: Triangle)
 	if not triangle in _triangles:
 		_triangles.append(triangle)
 
+func remove_polygon(triangle: Object) -> void:  # (triangle: Triangle)
+	if triangle in _triangles:
+		_triangles.erase(triangle)
+
 func get_vector() -> Vector3:
 	return _pos
 

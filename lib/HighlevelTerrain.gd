@@ -75,3 +75,6 @@ func get_road_paths() -> Array:  # -> Array[TrianglePaths]
 
 func get_road_junctions() -> Array:  # -> Array[Triangle]
 	return _civil_stage.get_junctions()
+
+func get_cliff_surfaces() -> Array:  # -> Array[Array[Triangle]]
+	return _cliff_stage.get_cliff_surfaces()
