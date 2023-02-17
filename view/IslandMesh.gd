@@ -9,8 +9,8 @@ export (float) var erode_depth: float = 1.0
 export (int) var land_cell_limit: int = 4000
 export (Resource) var debug_color_dict: Resource
 export (int) var river_count: int = 30
-export (float) var road_slope_penalty: float = 1.5
-export (float) var road_river_crossing_penalty: float = 4.0
+export (float) var road_slope_penalty: float = 5.0
+export (float) var road_river_crossing_penalty: float = 10.0
 export (float) var cliff_min_slope: float = 5.0
 export (float) var pin_speed: float = 10.0
 

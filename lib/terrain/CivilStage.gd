@@ -3,11 +3,13 @@ extends Stage
 
 var _grid: Grid
 var _lake_stage: LakeStage
+var _slope_penalty: float
+var _river_penalty: float
 var _settlement_cells: Array = []  # Array[SearchCell]
 var _road_paths: Array = []  # Array[TrianglePath]
 var _junctions: Array = []  #Array[Triangle]
-var _slope_penalty: float
-var _river_penalty: float
+var _triangle_searchcell_map: Dictionary = {}  # Dictionary[Triangle, SearchCell]
+var _best_settlement_pair_cost: Dictionary = {}  # Dictionary[String, Dictionary{cell_a, cell_b, cost}]
 
 const _NORMAL_COST: float = 1.0
 
@@ -22,8 +24,7 @@ func _to_string() -> String:
 
 func perform() -> void:
 	_locate_settlements()
-	var start_settlements = _pick_starting_settlements()
-	_lay_road_network(start_settlements)
+	_path_from_every_settlement()
 
 func get_road_paths() -> Array:  # -> Array[TrianglePath]
 	return _road_paths
@@ -44,103 +45,126 @@ func _locate_settlements() -> void:
 			triangle.set_potential_settlement()
 			_settlement_cells.append(triangle)
 
-func _pick_starting_settlements() -> Array:  # -> Array[Triangle]
-	# Might want to put some rules here, but for now just return any cell
-	var picked_settlements: Array = []
-	var diff: int = len(_settlement_cells) / 4
-	for i in range(0, len(_settlement_cells), diff):
-		picked_settlements.append(_settlement_cells[i])
-	return picked_settlements
+func _create_search_cell_for_triangle(triangle: Triangle, cost: float, path: Object = null) -> SearchCell:
+	var search_cell = SearchCell.new(triangle, cost, path)
+	_triangle_searchcell_map[triangle.get_instance_id()] = search_cell
+	return search_cell
 
-func _lay_road_network(start_settlements: Array) -> void:  # (start_settlements: Array[Triangle])
-	# Debug notes: The dictionary here will show as "null" even if not null while debugging
-	var surveys: Array = []  # Array[Dicionary]
-	for start_settlement in start_settlements:
-		surveys.append(_get_cell_cost_survey_from(start_settlement))
-	
-	# For each town we can create a path back to the start
-	for settlement_cell in _settlement_cells:
-		for survey in surveys:
-			var road_path = _get_path_from_survey(settlement_cell, survey)
-			_road_paths.append(road_path)
-	
-	# Go through each path and remove it if it serves no purpose
-	var remove_roads: Array = []  # Array[TrianglePath]
-	for road in _road_paths:
-		if road.purposeless():
-			remove_roads.append(road)
-	
-	for road in remove_roads:
-		road.remove_from_cells()
-		_road_paths.erase(road)
+func _get_search_cell_for_triangle(triangle: Triangle) -> Object:  # -> SearchCell | null
+	var key = triangle.get_instance_id()
+	if key in _triangle_searchcell_map.keys():
+		return _triangle_searchcell_map[key]
+	return null
 
-func _get_path_from_survey(origin: Triangle, survey: Dictionary) -> TrianglePath:
-	# (survey: Dictionary[Triangle, SearchCell]) -> Array[triangle]
+func _get_all_search_cells() -> Array:  # -> Array[SearchCell]
+	return _triangle_searchcell_map.values()
+
+func _get_all_neighbour_search_cells(search_cell: SearchCell) -> Array:  # -> Array[SearchCell]
+	var neighbour_search_cells: Array = []  # Array[SearchCell]
+	for neighbour_triangle in search_cell.get_triangle().get_neighbours():
+		var neighbour_search_cell: SearchCell = _get_search_cell_for_triangle(neighbour_triangle)
+		if neighbour_search_cell != null:
+			neighbour_search_cells.append(neighbour_search_cell)
+	return neighbour_search_cells
+
+func _get_cell_path_key(search_cell_a: SearchCell, search_cell_b: SearchCell) -> String:
+	"""Get a key unique to the destination paths of the search cells, order should be unimportant"""
+	var part_a: int = search_cell_a.get_destination().get_triangle().get_instance_id()
+	var part_b: int = search_cell_b.get_destination().get_triangle().get_instance_id()
+	return "%d:%d" % ([part_a, part_b] if part_a < part_b else [part_b, part_a])
+
+func _update_smallest_path_cost_table(search_cell_a: SearchCell, search_cell_b: SearchCell) -> void:
+	var key = _get_cell_path_key(search_cell_a, search_cell_b)
+	var total_cost = search_cell_a.get_cost() + search_cell_b.get_cost()
+	var details: Dictionary = {"cell_a": search_cell_a, "cell_b": search_cell_b, "cost": total_cost}
+	if not key in _best_settlement_pair_cost.keys():
+		_best_settlement_pair_cost[key] = details
+		return
+	var current_cost: float = _best_settlement_pair_cost[key]["cost"]
+	if total_cost < current_cost:
+		_best_settlement_pair_cost[key] = details
+
+func _path_from_every_settlement() -> void:
 	
-	var path: TrianglePath = TrianglePath.new(origin)
-	var origin_cell: SearchCell = survey[origin]
-	var road_cell: SearchCell = origin_cell.get_path()
-	if not road_cell:
-		return path
-	while road_cell.get_cost() > 0.0:
-		var triangle = road_cell.get_triangle()
-		var has_road: bool = triangle.contains_road()
-		triangle.add_road(self)
-		path.append(triangle)
-		road_cell = road_cell.get_path()
+	var search_front: Array = []  # Array[SearchCell]
+	# Start by setting a search cell in each settlement with a zero score
+	# No need to order yet, as all have the same cost
+	for settlement in _settlement_cells:
+		var search_cell = _create_search_cell_for_triangle(settlement, 0.0)
+		search_front.append(search_cell)
+	
+	while not search_front.empty():
+		var search_cell = search_front.pop_front()
 		
-		# If this triangle already had road, we can just end our path here
-		if has_road:
-			triangle.set_junction()
-			_junctions.append(triangle)
-			break
-	
-	path.complete(road_cell.get_triangle())
-	return path
-
-func _get_cell_cost_survey_from(start_settlement: Triangle) -> Dictionary:  # -> Dictionary[Triangle, SearchCell]
-	"""A breadth first search from start, try to link each settlement to one of the nearest"""
-	var start_search_cell: SearchCell = SearchCell.new(start_settlement, 0.0)
-	var search_queue: Array = [start_search_cell]  # Array[SearchCell]
-	var search_cell_dictionary: Dictionary = {start_settlement: start_search_cell}  # Dictionary[Triangle, SearchCell]
-	
-	while not search_queue.empty():
-		var search_cell = search_queue.pop_front()
 		# Get neighbour cells to valid path
 		for neighbour_tri in search_cell.get_triangle().get_neighbours():
 			if _lake_stage.triangle_in_water_body(neighbour_tri):
 				continue
-			
+
 			# Up the cost for each new step
 			var journey_cost: float = search_cell.get_cost()
 			journey_cost += _NORMAL_COST
-			
+
 			# Up the cost if crossing a river
 			var shared_edge = search_cell.get_triangle().get_shared_edge(neighbour_tri)
 			if shared_edge.has_river():
 				journey_cost += _river_penalty
-			
+
 			# Up the cost a little if going up/down a slope
 			journey_cost += abs(
 				neighbour_tri.get_center().y - search_cell.get_triangle().get_center().y
 			) * _slope_penalty
-			
-			# Check if there's an exising cell, if so, update it if cost is cheaper
-			if neighbour_tri in search_cell_dictionary.keys():
-				var neighbour_search_cell = search_cell_dictionary[neighbour_tri]
+
+			# Check if there's an exising cell
+			var neighbour_search_cell = _get_search_cell_for_triangle(neighbour_tri)
+			if neighbour_search_cell != null:
+				# update it if cost is cheaper, and re-insert to propagate
 				if neighbour_search_cell.get_cost() > journey_cost:
-					neighbour_search_cell.update_path(journey_cost, search_cell) 
+					neighbour_search_cell.update_path(journey_cost, search_cell)
+					var ind = search_front.bsearch_custom(neighbour_search_cell, self, "_sort_by_cost")
+					search_front.insert(ind, neighbour_search_cell)
 				continue
-			
-			# Push a new search cell into the queue
-			var new_search_cell = SearchCell.new(neighbour_tri, journey_cost, search_cell)
-			search_cell_dictionary[neighbour_tri] = new_search_cell
-			
-			# Insert into the list sorted by journey cost
-			var ind = search_queue.bsearch_custom(new_search_cell, self, "_sort_by_cost")
-			search_queue.insert(ind, new_search_cell)
+
+			# Insert a new search cell into the queue, sorted by journey cost
+			neighbour_search_cell = _create_search_cell_for_triangle(neighbour_tri, journey_cost, search_cell)
+			var ind = search_front.bsearch_custom(neighbour_search_cell, self, "_sort_by_cost")
+			search_front.insert(ind, neighbour_search_cell)
+
+	# Off all the search cells, find all the best search cell pairs that link any 2 settlements
+	for search_cell in _get_all_search_cells():
+		for neighbour_search_cell in _get_all_neighbour_search_cells(search_cell):
+			# For now, lets skip cells pairs in settlements
+			if search_cell.get_cost() == 0.0 or neighbour_search_cell.get_cost() == 0.0:
+				continue
+			# Skip pairs of cells that point to the same destination
+			if search_cell.get_destination() == neighbour_search_cell.get_destination():
+				continue
+			# Submit this cell pair for evaluation
+			_update_smallest_path_cost_table(search_cell, neighbour_search_cell)
 	
-	return search_cell_dictionary
+	# Create the paths from all the best settlement meetings we cound find
+	for path_details in _best_settlement_pair_cost.values():
+		var search_cell_a: SearchCell = path_details["cell_a"]
+		var search_cell_b: SearchCell = path_details["cell_b"]
+		var road_path: TrianglePath = TrianglePath.new()
+		_junctions.append(search_cell_a.get_triangle())
+		
+		# Work back to cell_a as origin
+		var to_origin = search_cell_a
+		while to_origin != to_origin.get_destination():
+			road_path.extend_to_origin(to_origin.get_triangle())
+			to_origin = to_origin.get_path()
+		road_path.set_origin(to_origin.get_triangle())
+		
+		# Work forward to cell_b as path destination
+		var to_destination = search_cell_b
+		while to_destination != to_destination.get_destination():
+			road_path.extend_to_destination(to_destination.get_triangle())
+			to_destination = to_destination.get_path()
+		road_path.set_destination(to_destination.get_triangle())
+		
+		_road_paths.append(road_path)
+		
 
 static func _sort_by_cost(a: SearchCell, b: SearchCell) -> bool:
 	return a.get_cost() < b.get_cost()

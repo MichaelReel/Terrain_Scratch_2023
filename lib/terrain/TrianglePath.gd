@@ -6,13 +6,18 @@ var _destination: Triangle
 var _path: Array = []  # Array[Triangle]
 
 
-func _init(origin: Triangle) -> void:
+func extend_to_origin(road: Triangle) -> void:
+	_path.push_front(road)
+	road.add_road(self)
+
+func extend_to_destination(road: Triangle) -> void:
+	_path.push_back(road)
+	road.add_road(self)
+
+func set_origin(origin: Triangle) -> void:
 	_origin = origin
 
-func append(road: Triangle) -> void:
-	_path.append(road)
-
-func complete(destination: Triangle) -> void:
+func set_destination(destination: Triangle) -> void:
 	_destination = destination
 
 func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
@@ -34,26 +39,3 @@ func get_path_pair_edges() -> Array:  # -> Array[Array[Edge]]
 
 func no_path() -> bool:
 	return _path.empty()
-
-func purposeless() -> bool:
-	return (
-		no_path() 
-		or _destination == null
-		or _origin == null
-		# or not _destination.is_junction_or_settlement()
-		or not _origin.is_junction_or_settlement()
-	)
-
-func other_paths_crossed() -> bool:
-	# Go through the path triangles, check if the triangle has more than one path
-	for triangle in _path:
-		if triangle.road_crossing():
-			return true
-	return false
-
-func remove_from_cells() -> void:
-	for triangle in _path:
-		triangle.remove_road(self)
-
-static func sort_path_length(a: TrianglePath, b: TrianglePath) -> bool:
-	return len(a._path) < len(b._path)
