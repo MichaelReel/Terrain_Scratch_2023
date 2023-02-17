@@ -248,7 +248,7 @@ func points_in_draw_order(a: Vertex, b: Vertex) -> bool:
 	var b_ind = _points.find(b)
 	if a_ind < 0 or b_ind < 0:
 		printerr("Testing draw order for points that are not in this triangle")
-	return a_ind < b_ind
+	return (a_ind + 1) % 3 == b_ind
 
 func replace_existing_edge_with(existing: Edge, replacement: Edge) -> void:
 	"""
