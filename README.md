@@ -332,3 +332,18 @@ The lakes will be used by the height map stage to form the landscape by marking 
   - Continue extending the river to the next lowest neighbour not in a lake, river or sea.
   - Stop when the river eventually reaches a lake, river or sea - include the last leg to terminate the river.
   - If the river runs any distance, then add it to the collection of rivers.
+
+### Creating the Settlements and Roads
+
+The Civil stage will mark every potential settlement locations that:
+- Is not in a water body
+- Is flat
+- Is beside a water body
+
+The process to create the roads between settlements requires a bit more effort.
+
+- To be Described
+
+### Exagerating Cliff Features
+
+- To be Described
