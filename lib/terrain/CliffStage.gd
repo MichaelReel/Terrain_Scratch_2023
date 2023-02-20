@@ -40,6 +40,19 @@ func _get_all_the_cliff_chains() -> void:
 	var cliff_edges: Array = []  # Array[Edge]
 	for row in _grid.get_triangles():
 		for cell in row:
+			var height_diff: float = cell.get_height_diff()
+			var low_edge: Edge = cell.get_lowest_edge()
+			var low_point: Vertex = low_edge.lowest_end_point()
+			
+			# Only include cells that are a given minimum slope
+			if height_diff < _min_slope:
+				continue
+			
+			# If only 1 point is low enough to touch the cliff, mark it
+			if low_edge.get_height_diff() > (height_diff * 0.5):
+				_put_cliff_point_top_triangle(low_point, cell)
+				continue
+			
 			if _lake_stage.triangle_in_water_body(cell):
 				# Ignore cells in water bodies
 				# TODO: Could probably allow undersea cliffs ¯\_(ツ)_/¯
@@ -56,18 +69,10 @@ func _get_all_the_cliff_chains() -> void:
 				# TODO: Special waterfall rules for rivers, possibly
 				#       Would have add additional river edges at least
 				continue
-			
-			# Only include cells that are a given minimum slope
-			var height_diff: float = cell.get_height_diff()
-			if height_diff >= _min_slope:
-				var low_edge: Edge = cell.get_lowest_edge()
-				var low_point: Vertex = low_edge.lowest_end_point()
-				# Only include the bottom edges and points of steep slopes
-				if low_edge.get_height_diff() <= (height_diff * 0.5):
-					cliff_edges.append(low_edge)
-					_edge_cliff_top_triangle_map[low_edge] = cell
-				else:
-					_put_cliff_point_top_triangle(low_point, cell)
+		
+			# Include the bottom edges of steep slopes
+			cliff_edges.append(low_edge)
+			_edge_cliff_top_triangle_map[low_edge] = cell
 	
 	# Before processing into chains, remove *both* copies of any duplicated edges
 	# This helps prevent infinite loops later in the extraction

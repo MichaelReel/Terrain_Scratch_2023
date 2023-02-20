@@ -100,7 +100,7 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 	var head_color = debug_color_dict.head_color
 	var mouth_color = debug_color_dict.mouth_color
 	var settlement_color = debug_color_dict.settlement_color
-	var road_cell_color = debug_color_dict.road_cell_color
+#	var road_cell_color = debug_color_dict.road_cell_color
 	var cliff_color = debug_color_dict.cliff_color
 	var special_debug_color = debug_color_dict.special_debug_color
 	var point_color_dict := {}
@@ -110,10 +110,10 @@ func get_river_vertex_colors(debug_color_dict: DebugColorDict) -> Dictionary:  #
 			point_color_dict[point] = settlement_color
 		return point_color_dict
 	
-	if contains_road():
-		for point in _points:
-			point_color_dict[point] = road_cell_color
-		return point_color_dict
+	# if contains_road():
+	# 	for point in _points:
+	# 		point_color_dict[point] = road_cell_color
+	# 	return point_color_dict
 		
 	for point in _points:
 		point_color_dict[point] = get_color()
